@@ -2,32 +2,31 @@
   "activites": [
     {
       "duree_min": 15,
-      "histoire": "Pour les 15 prochains jours, voici TON dossier (attribué au hasard). Apprends ces chiffres, tu vas les réutiliser : programme {programme} ({duree} ans), frais de scolarité {frais} $ par année. Tu étudies à {ville}, loyer {loyer} $ par mois.",
+      "histoire": "Pour les 15 prochains jours, voici TON dossier (attribué au hasard). Apprends ces chiffres, tu vas les réutiliser : programme {programme} ({duree} ans), frais de scolarité {frais} $ par année. Tu étudies à {ville}, loyer {loyer} $ par mois. Tu disposes d'un budget total de {budget} $ pour toutes tes études (économies + aide).",
       "jour": 1,
       "questions": [
         {
           "id": "q1",
           "type": "nombre",
-          "enonce": "Coût total des frais de scolarité pour tout le programme (en $)",
-          "solution": "frais * duree",
-          "points": 3,
-          "tolerance": 1
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Coût total du logement pour toute la durée du programme (en $)",
-          "solution": "loyer * 12 * duree",
+          "enonce": "Quel est le coût total de ton programme (frais de scolarité + logement) ? (en $)",
+          "solution": "frais * duree + loyer * 12 * duree",
           "points": 3,
           "tolerance": 2
         },
         {
-          "id": "q3",
+          "id": "q2",
           "type": "nombre",
-          "enonce": "Quel pourcentage du coût total (frais de scolarité + logement) représentent les frais de scolarité ? (en %, 1 décimale)",
-          "solution": "frais * duree / (frais * duree + loyer * 12 * duree) * 100",
+          "enonce": "Une fois le programme payé, combien te reste-t-il par mois pour toutes tes autres dépenses (nourriture, transport, etc.) ? (en $, peut être négatif)",
+          "solution": "(budget - (frais * duree + loyer * 12 * duree)) / (duree * 12)",
           "points": 4,
-          "tolerance": 0.6
+          "tolerance": 2
+        },
+        {
+          "id": "q3",
+          "type": "texte",
+          "enonce": "Si ton résultat est négatif, que dois-tu changer concrètement ? S'il est positif, est-ce suffisant pour vivre ? Justifie avec tes chiffres. (25 mots minimum)",
+          "min_mots": 25,
+          "points": 3
         }
       ],
       "titre": "Ton programme",
@@ -64,6 +63,11 @@
           "type": "int",
           "min": 600,
           "max": 950
+        },
+        "budget": {
+          "type": "int",
+          "min": 18000,
+          "max": 42000
         }
       }
     },
@@ -81,12 +85,12 @@
           "type": "nombre"
         },
         {
-          "enonce": "Combien économiserais-tu par année avec la colocation ? (en $)",
           "id": "q2",
+          "type": "nombre",
+          "enonce": "Tu sous-loues ton logement 4 mois l'été à 75 % du loyer. Quel est ton coût NET de logement pour l'année ? (en $)",
+          "solution": "loyer * 12 - loyer * 0.75 * 4",
           "points": 5,
-          "solution": "(loyer - loyer_coloc) * 12",
-          "tolerance": 1,
-          "type": "nombre"
+          "tolerance": 2
         }
       ],
       "titre": "Le loyer",
@@ -481,12 +485,12 @@
       "jour": 12,
       "questions": [
         {
-          "enonce": "Combien rapporte l'option A sur l'année ? (en $)",
           "id": "q1",
+          "type": "nombre",
+          "enonce": "L'option A rapporte combien NET par année si tu paies 15 % d'impôt sur ce revenu ? (en $)",
+          "solution": "heures * salaire * 40 * 0.85",
           "points": 5,
-          "solution": "heures * salaire * 40",
-          "tolerance": 2,
-          "type": "nombre"
+          "tolerance": 2
         },
         {
           "enonce": "Laquelle choisis-tu ? Justifie avec les chiffres, en pensant aussi à la dette. (40 mots minimum)",
@@ -546,16 +550,16 @@
     },
     {
       "duree_min": 15,
-      "histoire": "Tu as terminé ton programme dans les délais prévus et tu as reçu une bourse chaque année. Tu as droit à une remise de dette de 15 %. Ta dette est de {dette} $.",
+      "histoire": "Tu as terminé ton programme dans les délais et tu as reçu une bourse chaque année. Après avoir déjà remboursé 3 000 $, tu as droit à une remise de dette de 15 % sur le solde. Ta dette initiale était de {dette} $.",
       "jour": 14,
       "questions": [
         {
-          "enonce": "Quel est le montant de ta remise de dette ? (en $)",
           "id": "q1",
+          "type": "nombre",
+          "enonce": "Quel est le montant de ta remise de dette ? (en $)",
+          "solution": "(dette - 3000) * 0.15",
           "points": 6,
-          "solution": "dette * 0.15",
-          "tolerance": 2,
-          "type": "nombre"
+          "tolerance": 2
         },
         {
           "enonce": "Qu'est-ce que cette remise change concrètement pour tes premières années de travailleur ? (25 mots minimum)",

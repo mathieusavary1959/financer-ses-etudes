@@ -33,9 +33,11 @@ with open(os.path.join(BASE_DIR, "style.css"), encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def vault_header():
-    st.markdown('<div class="eval-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="eval-soustitre">Évaluation quotidienne · 15 jours · 150 points</div>', unsafe_allow_html=True)
-    st.markdown('<div class="eval-filet"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="sceau">15</div>', unsafe_allow_html=True)
+    st.markdown('<div class="salle-surtitre">Évaluation quotidienne</div>', unsafe_allow_html=True)
+    st.markdown('<div class="salle-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="salle-filet"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="salle-sous">15 jours · 150 points · un seul essai par jour</div>', unsafe_allow_html=True)
 
 # ---------------- BASE DE DONNÉES ----------------
 conn = st.connection("postgres", type="sql")
@@ -215,8 +217,9 @@ if est_prof:
             st.session_state.user = None
             st.rerun()
         st.stop()
-    st.markdown('<div class="eval-titre" style="font-size:2.2rem;letter-spacing:5px">SUPERVISION</div>', unsafe_allow_html=True)
-    st.markdown('<div class="eval-filet"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="salle-surtitre">Enseignant</div>', unsafe_allow_html=True)
+    st.markdown('<div class="salle-titre" style="font-size:2.3rem">SUPERVISION</div>', unsafe_allow_html=True)
+    st.markdown('<div class="salle-filet"></div>', unsafe_allow_html=True)
     tab_suivi, tab_comptes = st.tabs(["Suivi", "Comptes"])
     eleves = q("SELECT username, groupe FROM fq_users ORDER BY groupe, username")
     with tab_comptes:
@@ -362,24 +365,23 @@ def afficher_activite(i):
     except KeyError:
         histoire = act["histoire"]
     st.subheader(f"Évaluation {i} : {act['titre']}")
-    st.caption(f"À compléter aujourd'hui. Durée : {DUREE_MIN} minutes. Un seul envoi définitif.")
-    st.markdown(f'<div class="briefing"><b>Mise en situation</b><br><br>{histoire}</div>', unsafe_allow_html=True)
+    st.caption(f"À compléter aujourd'hui · {DUREE_MIN} minutes · un seul envoi définitif")
+    st.markdown(f'<div class="document"><div class="doc-titre">Mise en situation</div>'
+                f'<div class="doc-texte">{histoire}</div></div>', unsafe_allow_html=True)
     if "debut" not in st.session_state or st.session_state.get("jour_minuteur") != i:
         st.session_state.debut = time.time()
         st.session_state.jour_minuteur = i
     reste = DUREE_MIN * 60 - (time.time() - st.session_state.debut)
-    if reste <= 0:
-        st.markdown('<div class="minuteur urgent">TEMPS ÉCOULÉ</div>', unsafe_allow_html=True)
-        reste = 0
-    elif reste < 120:
-        st.markdown(f'<div class="minuteur urgent">{int(reste // 60)}:{int(reste % 60):02d}</div>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="minuteur">{int(reste // 60)}:{int(reste % 60):02d}</div>', unsafe_allow_html=True)
+    t_txt = f"{int(reste // 60)}:{int(reste % 60):02d}" if reste > 0 else "0:00"
+    cls = "minuteur urgent" if reste <= 120 else "minuteur"
+    st.markdown(f'<div class="{cls}"><span class="lbl">Temps restant</span>{t_txt}</div>',
+                unsafe_allow_html=True)
     with st.form(f"form_{i}"):
         reponses = {}
         for nq, qu in enumerate(act["questions"], start=1):
-            st.markdown(f'<div class="question-num">Question {nq} · {qu["points"]} points</div>', unsafe_allow_html=True)
-            st.markdown(f"**{qu['enonce']}**")
+            st.markdown(f'<div class="q-titre"><span class="q-num">Question {nq}</span>'
+                        f'<span class="q-pts">· {qu["points"]} points</span></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="q-enonce">{qu["enonce"]}</div>', unsafe_allow_html=True)
             if qu["type"] == "nombre":
                 reponses[qu["id"]] = st.number_input("Ta réponse", value=None, key=f"{i}_{qu['id']}", format="%.2f")
             elif qu["type"] == "choix":
@@ -434,16 +436,22 @@ def afficher_activite(i):
         st.rerun()
 
 def afficher_progression():
-    st.subheader("Mes évaluations")
-    libelles = {"fait": "Complétée", "manque": "Manquée", "aujourdhui": "Aujourd'hui", "verrouille": "À venir"}
+    st.subheader("La salle d'examen")
+    cartes = []
     for i in range(1, 16):
         s = statut_jour(i)
         d = JOURS[i - 1].strftime("%d/%m")
-        st.markdown(
-            f'<div class="eval-ligne"><div><span class="jour">Évaluation {i}</span> '
-            f'<span class="date">· {d}</span></div>'
-            f'<span class="pastille {s}">{libelles[s]}</span></div>',
-            unsafe_allow_html=True)
+        cartes.append(
+            f'<div class="pupitre {s}"><div class="lampe"></div>'
+            f'<div class="num">{i:02d}</div><div class="dt">{d}</div></div>')
+    st.markdown('<div class="pupitres">' + "".join(cartes) + '</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="legende">'
+        '<span><span class="pt" style="background:#FFB300"></span>Aujourd\'hui</span>'
+        '<span><span class="pt" style="background:#66BB6A"></span>Complétée</span>'
+        '<span><span class="pt" style="background:#E57373"></span>Manquée</span>'
+        '<span><span class="pt" style="background:#3a3a40"></span>À venir</span>'
+        '</div>', unsafe_allow_html=True)
     st.divider()
 
 if is_test:

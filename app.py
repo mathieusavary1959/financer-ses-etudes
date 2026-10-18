@@ -63,13 +63,15 @@ def afficher_minuteur(secondes):
     """, height=105)
 
 def vault_header():
+    reps = q("SELECT score_auto FROM fq_reponses WHERE username=:u", u=st.session_state.get("user", ""))
+    total = round(sum(float(r["score_auto"] or 0) for _, r in reps.iterrows()), 1) if len(reps) else 0
+    pct = min(100, total / 150 * 100)
     st.markdown(
-        '<div class="enseigne">'
-        '<div class="ligne1">15 jours · 150 points · sans retour</div>'
-        '<div class="ligne2">FINANCER <span class="accent">SES <span class="fz">É</span>TUDES</span></div>'
-        '</div>'
-        '<div class="enseigne-sous"><div class="filet"></div>'
-        '<div class="txt">Une évaluation par jour · un seul essai</div></div>',
+        f'<div class="solde-bloc"><div class="solde-etiquette">Solde</div>'
+        f'<div class="solde-montant">{total:.1f} <span class="pts">/ 150 pts</span></div>'
+        f'<div class="solde-barre"><div class="solde-remplissage" style="width:{pct}%"></div></div></div>'
+        '<div class="compte-titre">FINANCER SES ÉTUDES</div>'
+        '<div class="compte-sous">15 opérations · un seul essai chacune</div>',
         unsafe_allow_html=True)
 
 # ---------------- BASE DE DONNÉES ----------------
@@ -250,8 +252,8 @@ if est_prof:
             st.session_state.user = None
             st.rerun()
         st.stop()
-    st.markdown('<div class="enseigne"><div class="ligne2" style="font-size:2.4rem">SUPERVISION</div></div>'
-                '<div class="enseigne-sous"><div class="filet"></div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="compte-titre">SUPERVISION</div>'
+                '<div class="compte-sous">Financer ses études</div>', unsafe_allow_html=True)
     tab_suivi, tab_comptes = st.tabs(["Suivi", "Comptes"])
     eleves = q("SELECT username, groupe FROM fq_users ORDER BY groupe, username")
     with tab_comptes:
@@ -402,7 +404,7 @@ def afficher_activite(i):
         histoire = act["histoire"].format(**variables)
     except KeyError:
         histoire = act["histoire"]
-    st.subheader(f"Évaluation {i} : {act['titre']}")
+    st.subheader(f"Opération {i:02d} : {act['titre']}")
     st.caption(f"À compléter aujourd'hui · {DUREE_MIN} minutes · un seul envoi définitif")
     st.markdown(f'<div class="situation"><div class="sit-titre">Mise en situation</div>'
                 f'<div class="sit-texte">{histoire}</div></div>', unsafe_allow_html=True)
@@ -476,25 +478,30 @@ def afficher_activite(i):
         st.rerun()
 
 def afficher_progression():
-    st.subheader("Mon parcours")
-    reps = q("SELECT score_auto FROM fq_reponses WHERE username=:u", u=user)
-    total = round(sum(float(r["score_auto"] or 0) for _, r in reps.iterrows()), 1)
-    pct = min(100, total / 150 * 100)
-    st.markdown(
-        f'<div class="progression"><div class="prog-tete">'
-        f'<span class="prog-label">Cagnotte</span>'
-        f'<span class="prog-chiffre">{total} / 150</span></div>'
-        f'<div class="prog-piste"><div class="prog-remplissage" style="width:{pct}%"></div></div></div>',
-        unsafe_allow_html=True)
-    lib = {"fait": "Complété", "manque": "Manqué", "aujourdhui": "Aujourd'hui", "verrouille": "À venir"}
-    cartes = []
+    st.markdown('<div class="ops-titre">Mes opérations</div>', unsafe_allow_html=True)
     for i in range(1, 16):
         s = statut_jour(i)
         d = JOURS[i - 1].strftime("%d/%m")
-        cartes.append(
-            f'<div class="jour-carte {s}"><div class="jnum">{i:02d}</div>'
-            f'<div class="jdate">{d}</div><div class="jstat">{lib[s]}</div></div>')
-    st.markdown('<div class="jours-grille">' + "".join(cartes) + '</div>', unsafe_allow_html=True)
+        act = ACTIVITES[i]
+        rr = q1("SELECT score_auto FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i)
+        if s == "fait":
+            pts = float(rr["score_auto"] or 0) if rr else 0
+            montant = f'<div class="op-montant pos">+{pts:.1f}</div>'
+            icone_cls, icone_txt = "fait", "✓"
+        elif s == "manque":
+            montant = '<div class="op-montant neg">0</div>'
+            icone_cls, icone_txt = "manque", "✗"
+        elif s == "aujourdhui":
+            montant = '<div class="op-montant nul">→</div>'
+            icone_cls, icone_txt = "aujourdhui", f"{i:02d}"
+        else:
+            montant = '<div class="op-montant nul">·</div>'
+            icone_cls, icone_txt = "verrouille", f"{i:02d}"
+        st.markdown(
+            f'<div class="operation {s}"><div class="op-icone {icone_cls}">{icone_txt}</div>'
+            f'<div class="op-info"><div class="op-nom">{act["titre"]}</div>'
+            f'<div class="op-date">Opération {i:02d} · {d}</div></div>{montant}</div>',
+            unsafe_allow_html=True)
     st.divider()
 
 if is_test:

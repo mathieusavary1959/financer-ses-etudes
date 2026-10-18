@@ -63,12 +63,14 @@ def afficher_minuteur(secondes):
     """, height=105)
 
 def vault_header():
-    st.markdown('<div class="lampe-banquiere"><div class="abat"></div><div class="faisceau"></div></div>',
-                unsafe_allow_html=True)
-    st.markdown('<div class="cash-surtitre">15 jours · 150 points · sans retour</div>', unsafe_allow_html=True)
-    st.markdown('<div class="cash-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="cash-filet"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="cash-sous">Une évaluation par jour · un seul essai</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="enseigne">'
+        '<div class="ligne1">15 jours · 150 points · sans retour</div>'
+        '<div class="ligne2">FINANCER <span class="accent">SES <span class="fz">É</span>TUDES</span></div>'
+        '</div>'
+        '<div class="enseigne-sous"><div class="filet"></div>'
+        '<div class="txt">Une évaluation par jour · un seul essai</div></div>',
+        unsafe_allow_html=True)
 
 # ---------------- BASE DE DONNÉES ----------------
 conn = st.connection("postgres", type="sql")
@@ -248,9 +250,8 @@ if est_prof:
             st.session_state.user = None
             st.rerun()
         st.stop()
-    st.markdown('<div class="cash-surtitre">Enseignant</div>', unsafe_allow_html=True)
-    st.markdown('<div class="cash-titre" style="font-size:2.4rem">SUPERVISION</div>', unsafe_allow_html=True)
-    st.markdown('<div class="cash-filet"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="enseigne"><div class="ligne2" style="font-size:2.4rem">SUPERVISION</div></div>'
+                '<div class="enseigne-sous"><div class="filet"></div></div>', unsafe_allow_html=True)
     tab_suivi, tab_comptes = st.tabs(["Suivi", "Comptes"])
     eleves = q("SELECT username, groupe FROM fq_users ORDER BY groupe, username")
     with tab_comptes:
@@ -467,6 +468,15 @@ def afficher_activite(i):
 
 def afficher_progression():
     st.subheader("Mon parcours")
+    reps = q("SELECT score_auto FROM fq_reponses WHERE username=:u", u=user)
+    total = round(sum(float(r["score_auto"] or 0) for _, r in reps.iterrows()), 1)
+    pct = min(100, total / 150 * 100)
+    st.markdown(
+        f'<div class="progression"><div class="prog-tete">'
+        f'<span class="prog-label">Cagnotte</span>'
+        f'<span class="prog-chiffre">{total} / 150</span></div>'
+        f'<div class="prog-piste"><div class="prog-remplissage" style="width:{pct}%"></div></div></div>',
+        unsafe_allow_html=True)
     lib = {"fait": "Complété", "manque": "Manqué", "aujourdhui": "Aujourd'hui", "verrouille": "À venir"}
     cartes = []
     for i in range(1, 16):

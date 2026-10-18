@@ -28,6 +28,14 @@ with open(os.path.join(BASE_DIR, "activites.json"), encoding="utf-8") as f:
 
 st.set_page_config(page_title="Financer ses études", layout="centered")
 
+# ===== THÈME LE COFFRE =====
+with open(os.path.join(BASE_DIR, "style.css"), encoding="utf-8") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+def vault_header():
+    st.markdown('<div class="vault-titre">LE COFFRE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="vault-soustitre">15 JOURS &nbsp;·&nbsp; 15 SERRURES &nbsp;·&nbsp; 150 POINTS</div>', unsafe_allow_html=True)
+
 # ---------------- BASE DE DONNÉES ----------------
 conn = st.connection("postgres", type="sql")
 
@@ -160,11 +168,12 @@ if "user" not in st.session_state:
     st.session_state.user = None
 
 if not st.session_state.user:
-    st.title("Financer ses études")
-    st.caption("15 jours, 15 situations. Une par jour, sans retour en arrière.")
+    vault_header()
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.caption("Identifie-toi pour entrer dans le coffre.")
     u = st.text_input("Nom d'utilisateur (prénom.nom, donné par ton prof)")
     p = st.text_input("Mot de passe", type="password")
-    if st.button("Se connecter", use_container_width=True):
+    if st.button("Ouvrir le coffre", use_container_width=True):
         r = q1("SELECT username, password, groupe FROM fq_users WHERE username=:u", u=u.strip().lower())
         if not r:
             st.error("Compte introuvable. Demande ton nom d'utilisateur à ton prof.")
@@ -206,7 +215,7 @@ if est_prof:
             st.session_state.user = None
             st.rerun()
         st.stop()
-    st.title("Supervision : Financer ses études")
+    st.markdown('<div class="vault-titre" style="font-size:2.4rem">LE COFFRE · SUPERVISION</div>', unsafe_allow_html=True)
     tab_suivi, tab_comptes = st.tabs(["Suivi", "Comptes"])
     eleves = q("SELECT username, groupe FROM fq_users ORDER BY groupe, username")
     with tab_comptes:
@@ -284,7 +293,7 @@ if est_prof:
     st.stop()
 
 # ---------------- VUE ÉLÈVE ----------------
-st.title("Financer ses études")
+vault_header()
 aujourdhui = date.today()
 is_test = st.session_state.get("groupe") == "TEST"
 
@@ -351,18 +360,20 @@ def afficher_activite(i):
         histoire = act["histoire"].format(**variables)
     except KeyError:
         histoire = act["histoire"]
-    st.subheader(f"Jour {i} : {act['titre']}")
-    st.caption(f"À faire aujourd'hui seulement. {DUREE_MIN} minutes, un seul envoi.")
-    st.write(histoire)
+    st.subheader(f"Serrure {i} : {act['titre']}")
+    st.caption(f"À crocheter aujourd'hui seulement. {DUREE_MIN} minutes, un seul essai.")
+    st.markdown(f'<div class="briefing">{histoire}</div>', unsafe_allow_html=True)
     if "debut" not in st.session_state or st.session_state.get("jour_minuteur") != i:
         st.session_state.debut = time.time()
         st.session_state.jour_minuteur = i
     reste = DUREE_MIN * 60 - (time.time() - st.session_state.debut)
     if reste <= 0:
-        st.error("Temps écoulé. Tu dois terminer avec ce que tu as.")
+        st.markdown('<div class="minuteur urgent">TEMPS ÉCOULÉ</div>', unsafe_allow_html=True)
         reste = 0
+    elif reste < 120:
+        st.markdown(f'<div class="minuteur urgent">{int(reste // 60)}:{int(reste % 60):02d}</div>', unsafe_allow_html=True)
     else:
-        st.caption(f"Temps restant : {int(reste // 60)} min {int(reste % 60)} s")
+        st.markdown(f'<div class="minuteur">{int(reste // 60)}:{int(reste % 60):02d}</div>', unsafe_allow_html=True)
     with st.form(f"form_{i}"):
         reponses = {}
         for qu in act["questions"]:
@@ -378,7 +389,7 @@ def afficher_activite(i):
                                              format_func=lambda x, o=opts_fmt: o[x], key=f"{i}_{qu['id']}")
             else:
                 reponses[qu["id"]] = st.text_area("Ta réponse", key=f"{i}_{qu['id']}")
-        envoyer = st.form_submit_button("Envoyer (définitif)", use_container_width=True)
+        envoyer = st.form_submit_button("CROCHETER LA SERRURE", use_container_width=True)
     if envoyer:
         if q1("SELECT submitted_at FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i):
             st.warning("Réponse déjà envoyée.")
@@ -421,15 +432,14 @@ def afficher_activite(i):
         st.rerun()
 
 def afficher_progression():
-    st.subheader("Ma progression")
+    st.subheader("Mes serrures")
     icones = {"fait": "✓", "manque": "✗", "aujourdhui": "→", "verrouille": "·"}
-    lignes = []
     for rng in range(0, 15, 5):
         cols = st.columns(5)
         for k in range(5):
             i = rng + k + 1
             s = statut_jour(i)
-            cols[k].write(f"J{i} {icones[s]}")
+            cols[k].markdown(f'<div class="serrure {s}">J{i} {icones[s]}</div>', unsafe_allow_html=True)
     st.divider()
 
 if is_test:

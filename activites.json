@@ -1,647 +1,816 @@
 {
-  "activites": [
-    {
-      "duree_min": 15,
-      "histoire": "Pour les 15 prochains jours, voici TON dossier (attribué au hasard). Apprends ces chiffres, tu vas les réutiliser : programme {programme} ({duree} ans), frais de scolarité {frais} $ par année. Tu étudies à {ville}, loyer {loyer} $ par mois. Tu disposes d'un budget total de {budget} $ pour toutes tes études (économies + aide).",
-      "jour": 1,
-      "questions": [
-        {
-          "id": "q1",
-          "type": "nombre",
-          "enonce": "Quel est le coût total de ton programme (frais de scolarité + logement) ? (en $)",
-          "solution": "frais * duree + loyer * 12 * duree",
-          "points": 3,
-          "tolerance": 2
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Une fois le programme payé, combien te reste-t-il par mois pour toutes tes autres dépenses (nourriture, transport, etc.) ? (en $, peut être négatif)",
-          "solution": "(budget - (frais * duree + loyer * 12 * duree)) / (duree * 12)",
-          "points": 4,
-          "tolerance": 2
-        },
-        {
-          "id": "q3",
-          "type": "nombre",
-          "enonce": "De combien dois-tu augmenter tes revenus mensuels pour équilibrer ton budget ? (0 si tu es déjà en surplus, en $)",
-          "solution": "max(0, -(budget - (frais * duree + loyer * 12 * duree)) / (duree * 12))",
-          "points": 3,
-          "tolerance": 2
-        }
-      ],
-      "titre": "Ton programme",
-      "variables": {
-        "duree": {
-          "max": 4,
-          "min": 2,
-          "type": "int"
-        },
-        "frais": {
-          "max": 650,
-          "min": 350,
-          "type": "int"
-        },
-        "programme": {
-          "options": [
-            "Technique en informatique",
-            "DEP en cuisine",
-            "Technique en soins infirmiers",
-            "DEC en sciences humaines"
-          ],
-          "type": "choix"
-        },
-        "ville": {
-          "type": "choix",
-          "options": [
-            "Montréal",
-            "Québec",
-            "Sherbrooke",
-            "Trois-Rivières"
-          ]
-        },
-        "loyer": {
-          "type": "int",
-          "min": 600,
-          "max": 950
-        },
-        "budget": {
-          "type": "int",
-          "min": 18000,
-          "max": 42000
-        }
-      }
+ "titre": "Financer ses études : 15 jours, 15 situations",
+ "activites": [
+  {
+   "jour": 1,
+   "titre": "Le budget",
+   "histoire": "Pour les 15 prochains jours, voici TON dossier (attribué au hasard). Apprends ces chiffres, tu vas les réutiliser : programme {programme} ({duree} ans), frais de scolarité {frais} $ par année. Tu étudies à {ville}, loyer {loyer} $ par mois. Tu disposes d'un budget total de {budget} $ pour toutes tes études.",
+   "variables": {
+    "programme": {
+     "type": "choix",
+     "options": [
+      "Technique en informatique",
+      "DEP en cuisine",
+      "Technique en soins infirmiers",
+      "DEC en sciences humaines"
+     ]
     },
-    {
-      "duree_min": 15,
-      "histoire": "Tu étudies à {ville} et ton loyer mensuel est de {loyer} $. Un ami te propose une colocation à {loyer_coloc} $ par mois.",
-      "jour": 2,
-      "questions": [
-        {
-          "enonce": "Quel est ton coût annuel de logement actuel ? (en $)",
-          "id": "q1",
-          "points": 5,
-          "solution": "loyer * 12",
-          "tolerance": 1,
-          "type": "nombre"
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Tu sous-loues ton logement 4 mois l'été à 75 % du loyer. Quel est ton coût NET de logement pour l'année ? (en $)",
-          "solution": "loyer * 12 - loyer * 0.75 * 4",
-          "points": 5,
-          "tolerance": 2
-        }
-      ],
-      "titre": "Le loyer",
-      "variables": {
-        "loyer": {
-          "type": "dossier"
-        },
-        "ville": {
-          "type": "dossier"
-        },
-        "loyer_coloc": {
-          "type": "int",
-          "min": 400,
-          "max": 600
-        }
-      }
+    "duree": {
+     "type": "int",
+     "min": 2,
+     "max": 4
     },
-    {
-      "duree_min": 15,
-      "histoire": "Voici ton mois type. Revenus : travail à temps partiel, {heures} h par semaine à {salaire} $/h. Dépenses mensuelles : loyer {loyer} $, nourriture {nourriture} $, transport {transport} $, autres {autres} $.",
-      "jour": 3,
-      "questions": [
-        {
-          "enonce": "Quel est ton solde mensuel (revenus moins dépenses) ? (en $, négatif si déficit)",
-          "id": "q1",
-          "points": 7,
-          "solution": "(heures * salaire * 4.33) - (loyer + nourriture + transport + autres)",
-          "tolerance": 2,
-          "type": "nombre"
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "De quel pourcentage dois-tu réduire tes dépenses mensuelles totales pour économiser 200 $ ? (en %, 1 décimale)",
-          "solution": "200 / (loyer + nourriture + transport + autres) * 100",
-          "points": 3,
-          "tolerance": 0.5
-        }
-      ],
-      "titre": "Le budget mensuel",
-      "variables": {
-        "autres": {
-          "max": 250,
-          "min": 120,
-          "type": "int"
-        },
-        "heures": {
-          "max": 15,
-          "min": 8,
-          "type": "int"
-        },
-        "nourriture": {
-          "max": 450,
-          "min": 300,
-          "type": "int"
-        },
-        "salaire": {
-          "max": 17,
-          "min": 15,
-          "type": "float"
-        },
-        "transport": {
-          "max": 150,
-          "min": 90,
-          "type": "int"
-        },
-        "loyer": {
-          "type": "dossier"
-        }
-      }
+    "frais": {
+     "type": "int",
+     "min": 350,
+     "max": 650
     },
-    {
-      "duree_min": 15,
-      "histoire": "Tu fais ta demande à l'AFE. Ta situation : {situation}. Selon le barème 2026-2027, ton prêt mensuel est de {pret_mensuel} $ par mois d'études.",
-      "jour": 4,
-      "questions": [
-        {
-          "enonce": "Quel est ton prêt total pour 8 mois d'études ? (en $)",
-          "id": "q1",
-          "points": 6,
-          "solution": "pret_mensuel * 8",
-          "tolerance": 1,
-          "type": "nombre"
-        },
-        {
-          "enonce": "L'AFE verse d'abord un prêt, puis convertit une partie en bourse après vérification. La bourse, dois-tu la rembourser ?",
-          "id": "q2",
-          "options": [
-            "Oui, comme le prêt",
-            "Non, elle n'est pas remboursable",
-            "Seulement si tu échoues"
-          ],
-          "points": 4,
-          "solution": 1,
-          "type": "choix"
-        }
-      ],
-      "titre": "L'aide financière",
-      "variables": {
-        "pret_mensuel": {
-          "max": 300,
-          "min": 250,
-          "type": "int"
-        },
-        "situation": {
-          "options": [
-            "tu vis chez tes parents",
-            "tu vis en logement autonome"
-          ],
-          "type": "choix"
-        }
-      }
+    "ville": {
+     "type": "choix",
+     "options": [
+      "Montréal",
+      "Québec",
+      "Sherbrooke",
+      "Trois-Rivières"
+     ]
     },
-    {
-      "duree_min": 15,
-      "histoire": "Fin de la première semaine. Reprenons TES chiffres : frais de scolarité annuels {frais} $, loyer mensuel {loyer} $, autres dépenses mensuelles {autres} $, prêt AFE annuel {pret_annuel} $, revenus de travail annuels {revenus_travail} $.",
-      "jour": 5,
-      "questions": [
-        {
-          "enonce": "Quel est ton coût annuel total ? (frais + loyer x 12 + autres x 12, en $)",
-          "id": "q1",
-          "points": 6,
-          "solution": "frais + loyer * 12 + autres * 12",
-          "tolerance": 2,
-          "type": "nombre"
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Quel est l'écart entre ton coût annuel total et ton financement annuel total (prêt + travail) ? (en $, négatif si déficit)",
-          "solution": "(frais + loyer * 12 + autres * 12) - (pret_annuel + revenus_travail)",
-          "points": 4,
-          "tolerance": 2
-        }
-      ],
-      "titre": "Bilan de la semaine 1",
-      "variables": {
-        "autres": {
-          "max": 700,
-          "min": 450,
-          "type": "int"
-        },
-        "pret_annuel": {
-          "max": 2400,
-          "min": 2000,
-          "type": "int"
-        },
-        "revenus_travail": {
-          "max": 8000,
-          "min": 5000,
-          "type": "int"
-        },
-        "frais": {
-          "type": "dossier"
-        },
-        "loyer": {
-          "type": "dossier"
-        }
-      }
+    "loyer": {
+     "type": "int",
+     "min": 600,
+     "max": 950
     },
-    {
-      "duree_min": 15,
-      "histoire": "L'AFE a calculé tes besoins financiers : {besoins} $ pour l'année. Le montant de prêt établi pour toi est de {pret} $.",
-      "jour": 6,
-      "questions": [
-        {
-          "enonce": "Quel est le montant de ta bourse ? (besoins moins prêt, en $)",
-          "id": "q1",
-          "points": 6,
-          "solution": "besoins - pret",
-          "tolerance": 1,
-          "type": "nombre"
-        },
-        {
-          "enonce": "Quand la bourse est-elle vraiment à toi ?",
-          "id": "q2",
-          "options": [
-            "Dès le début, en argent direct",
-            "D'abord versée en prêt, convertie après vérification de tes revenus",
-            "C'est un mythe, ça n'existe pas"
-          ],
-          "points": 4,
-          "solution": 1,
-          "type": "choix"
-        }
-      ],
-      "titre": "Prêt ou bourse ?",
-      "variables": {
-        "besoins": {
-          "max": 12000,
-          "min": 8000,
-          "type": "int"
-        },
-        "pret": {
-          "max": 3000,
-          "min": 2000,
-          "type": "int"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Ton prêt accumulé est de {pret_total} $. Le taux est de {taux} % par année. Bonne nouvelle : pendant tes études à temps plein, le gouvernement paie tous les intérêts.",
-      "jour": 7,
-      "questions": [
-        {
-          "enonce": "Si TU devais payer les intérêts, combien pour une année complète ? (en $)",
-          "id": "q1",
-          "points": 6,
-          "solution": "pret_total * taux / 100",
-          "tolerance": 2,
-          "type": "nombre"
-        },
-        {
-          "enonce": "Pendant tes études à temps plein, qui paie les intérêts de ton prêt ?",
-          "id": "q2",
-          "options": [
-            "Toi, chaque mois",
-            "Le gouvernement",
-            "Personne, il n'y a pas d'intérêts"
-          ],
-          "points": 4,
-          "solution": 1,
-          "type": "choix"
-        }
-      ],
-      "titre": "Les intérêts",
-      "variables": {
-        "pret_total": {
-          "max": 12000,
-          "min": 6000,
-          "type": "int"
-        },
-        "taux": {
-          "max": 7.5,
-          "min": 6.0,
-          "type": "float"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Tu termines tes études. Bonne nouvelle : tu as 6 mois de grâce avant de commencer à rembourser le capital. Ton prêt est de {pret} $ au taux de {taux} %.",
-      "jour": 8,
-      "questions": [
-        {
-          "enonce": "Combien de mois après la fin de tes études commences-tu à rembourser le capital ?",
-          "id": "q1",
-          "points": 4,
-          "solution": "6",
-          "tolerance": 0,
-          "type": "nombre"
-        },
-        {
-          "enonce": "Pendant le délai de grâce, les intérêts courent. Combien d'intérêts par mois sur ton prêt ? (en $)",
-          "id": "q2",
-          "points": 6,
-          "solution": "pret * taux / 100 / 12",
-          "tolerance": 2,
-          "type": "nombre"
-        }
-      ],
-      "titre": "Le remboursement commence",
-      "variables": {
-        "pret": {
-          "max": 15000,
-          "min": 8000,
-          "type": "int"
-        },
-        "taux": {
-          "max": 7.5,
-          "min": 6.0,
-          "type": "float"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Tu rembourses ton prêt de {pret} $ sur {annees} ans, au taux de {taux} %. Pour simplifier, on calcule les intérêts totaux ainsi : capital x taux x années.",
-      "jour": 9,
-      "questions": [
-        {
-          "enonce": "Quel est le montant total des intérêts payés ? (en $)",
-          "id": "q1",
-          "points": 7,
-          "solution": "pret * taux / 100 * annees",
-          "tolerance": 5,
-          "type": "nombre"
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Les intérêts totaux représentent quel pourcentage du capital emprunté ? (en %, arrondi à l'unité)",
-          "solution": "taux * annees",
-          "points": 3,
-          "tolerance": 1
-        }
-      ],
-      "titre": "Le coût total",
-      "variables": {
-        "annees": {
-          "max": 10,
-          "min": 5,
-          "type": "int"
-        },
-        "pret": {
-          "max": 18000,
-          "min": 10000,
-          "type": "int"
-        },
-        "taux": {
-          "max": 7.5,
-          "min": 6.0,
-          "type": "float"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Ta dette totale à la fin de tes études : {dette} $. La limite d'endettement cumulative pour ton programme est de {limite} $.",
-      "jour": 10,
-      "questions": [
-        {
-          "enonce": "Es-tu sous la limite d'endettement permise ?",
-          "id": "q1",
-          "options": [
-            "Oui",
-            "Non"
-          ],
-          "points": 5,
-          "solution": "0 if dette < limite else 1",
-          "type": "choix"
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "De combien dépasses-tu la limite d'endettement, ou es-tu en dessous ? (en $, positif si tu dépasses, négatif sinon)",
-          "solution": "dette - limite",
-          "points": 5,
-          "tolerance": 1
-        }
-      ],
-      "titre": "Bilan de la semaine 2",
-      "variables": {
-        "dette": {
-          "max": 32000,
-          "min": 18000,
-          "type": "int"
-        },
-        "limite": {
-          "max": 30000,
-          "min": 22000,
-          "type": "int"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Coup dur : ton auto te lâche. Réparation : {reparation} $. Ton solde mensuel actuel est de {solde} $.",
-      "jour": 11,
-      "questions": [
-        {
-          "enonce": "Si tu répartis la réparation sur 12 mois, quel est ton nouveau solde mensuel ? (en $)",
-          "id": "q1",
-          "points": 6,
-          "solution": "solde - reparation / 12",
-          "tolerance": 2,
-          "type": "nombre"
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "En combien de mois peux-tu rembourser cette réparation si tu y consacres 150 $ par mois ? (arrondi à l'unité)",
-          "solution": "round(reparation / 150)",
-          "points": 4,
-          "tolerance": 1
-        }
-      ],
-      "titre": "L'imprévu",
-      "variables": {
-        "reparation": {
-          "max": 1500,
-          "min": 800,
-          "type": "int"
-        },
-        "solde": {
-          "max": 400,
-          "min": 150,
-          "type": "int"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Il te manque {manque} $ cette année. Option A : travailler {heures} h de plus par semaine à {salaire} $/h pendant 40 semaines. Option B : emprunter {manque} $ de plus sur ton prêt étudiant.",
-      "jour": 12,
-      "questions": [
-        {
-          "id": "q1",
-          "type": "nombre",
-          "enonce": "L'option A rapporte combien NET par année si tu paies 15 % d'impôt sur ce revenu ? (en $)",
-          "solution": "heures * salaire * 40 * 0.85",
-          "points": 5,
-          "tolerance": 2
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Si tu choisis l'option B, quel montant total rembourseras-tu (capital + intérêts à 6,5 % sur 5 ans) ? (en $)",
-          "solution": "manque * (1 + 0.065 * 5)",
-          "points": 5,
-          "tolerance": 2
-        }
-      ],
-      "titre": "Travailler plus ou emprunter plus ?",
-      "variables": {
-        "heures": {
-          "max": 8,
-          "min": 4,
-          "type": "int"
-        },
-        "manque": {
-          "max": 3000,
-          "min": 1500,
-          "type": "int"
-        },
-        "salaire": {
-          "max": 17,
-          "min": 15,
-          "type": "float"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Après tes études, tu as de la difficulté à rembourser. Il existe un programme de remboursement différé.",
-      "jour": 13,
-      "questions": [
-        {
-          "enonce": "Le remboursement différé, c'est quoi ?",
-          "id": "q1",
-          "options": [
-            "On efface une partie de ta dette",
-            "On diminue ou on suspend tes paiements, par périodes de 6 mois",
-            "On te prête de l'argent supplémentaire"
-          ],
-          "points": 5,
-          "solution": 1,
-          "type": "choix"
-        },
-        {
-          "enonce": "Quelle est la durée maximale totale du différé dans une vie ? (en mois)",
-          "id": "q2",
-          "points": 5,
-          "solution": "60",
-          "tolerance": 0,
-          "type": "nombre"
-        }
-      ],
-      "titre": "Le remboursement différé",
-      "variables": {}
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Tu as terminé ton programme dans les délais et tu as reçu une bourse chaque année. Après avoir déjà remboursé 3 000 $, tu as droit à une remise de dette de 15 % sur le solde. Ta dette initiale était de {dette} $.",
-      "jour": 14,
-      "questions": [
-        {
-          "id": "q1",
-          "type": "nombre",
-          "enonce": "Quel est le montant de ta remise de dette ? (en $)",
-          "solution": "(dette - 3000) * 0.15",
-          "points": 6,
-          "tolerance": 2
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Après la remise, combien te reste-t-il à rembourser au total ? (en $)",
-          "solution": "(dette - 3000) * 0.85",
-          "points": 4,
-          "tolerance": 2
-        }
-      ],
-      "titre": "La remise de dette",
-      "variables": {
-        "dette": {
-          "max": 25000,
-          "min": 12000,
-          "type": "int"
-        }
-      }
-    },
-    {
-      "duree_min": 15,
-      "histoire": "Tu as terminé tes études. Voici ta situation finale : dette de {dette} $, taux de {taux} %, remboursement sur {annees} ans. Ton premier emploi te paie {salaire} $ par mois.",
-      "jour": 15,
-      "questions": [
-        {
-          "id": "q1",
-          "type": "nombre",
-          "enonce": "Quel sera ton paiement mensuel ? (approximation : (capital + intérêts totaux) divisé par le nombre de mois, en $)",
-          "solution": "(dette + dette * taux / 100 * annees) / (annees * 12)",
-          "points": 4,
-          "tolerance": 2
-        },
-        {
-          "id": "q2",
-          "type": "nombre",
-          "enonce": "Quel pourcentage de ton salaire mensuel ce paiement représente-t-il ? (en %, 1 décimale)",
-          "solution": "((dette + dette * taux / 100 * annees) / (annees * 12)) / salaire * 100",
-          "points": 3,
-          "tolerance": 0.5
-        },
-        {
-          "id": "q3",
-          "type": "choix",
-          "enonce": "Les experts recommandent de ne pas consacrer plus de 15 % de son revenu au remboursement des dettes. Ta situation est-elle saine ?",
-          "options": [
-            "Oui, sous les 15 %",
-            "Non, au-dessus des 15 %"
-          ],
-          "solution": "0 if ((dette + dette * taux / 100 * annees) / (annees * 12)) / salaire * 100 <= 15 else 1",
-          "points": 3
-        }
-      ],
-      "titre": "Décision finale",
-      "variables": {
-        "dette": {
-          "type": "int",
-          "min": 15000,
-          "max": 30000
-        },
-        "taux": {
-          "type": "float",
-          "min": 6.0,
-          "max": 7.5
-        },
-        "annees": {
-          "type": "int",
-          "min": 5,
-          "max": 10
-        },
-        "salaire": {
-          "type": "int",
-          "min": 2800,
-          "max": 4200
-        }
-      }
+    "budget": {
+     "type": "int",
+     "min": 18000,
+     "max": 42000
     }
-  ],
-  "titre": "Financer ses études : 15 jours, 15 situations"
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Coût total de ton programme (frais de scolarité + logement), sans augmentation (en $)",
+     "solution": "frais * duree + loyer * 12 * duree",
+     "points": 3,
+     "tolerance": 2
+    },
+    {
+     "id": "q2",
+     "type": "choix",
+     "enonce": "Pour savoir combien il te reste par mois une fois le programme payé, quel calcul est correct ?",
+     "options": [
+      "{budget} - (coût total) / 12",
+      "({budget} - coût total) / ({duree} x 12)",
+      "{budget} / ({duree} x 12) - coût total",
+      "coût total - {budget} / ({duree} x 12)"
+     ],
+     "solution": 1,
+     "points": 4
+    },
+    {
+     "id": "q3",
+     "type": "nombre",
+     "enonce": "En utilisant la bonne méthode, combien te reste-t-il par mois ? (en $, peut être négatif)",
+     "solution": "(budget - (frais * duree + loyer * 12 * duree)) / (duree * 12)",
+     "points": 3,
+     "tolerance": 2
+    }
+   ]
+  },
+  {
+   "jour": 2,
+   "titre": "Le loyer",
+   "histoire": "Tu étudies à {ville} et ton loyer mensuel est de {loyer} $. Pour l'été (4 mois), tu peux sous-louer à 75 % du loyer.",
+   "variables": {
+    "loyer": {
+     "type": "dossier"
+    },
+    "ville": {
+     "type": "dossier"
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel est ton coût annuel de logement si tu ne sous-loues pas ? (en $)",
+     "solution": "loyer * 12",
+     "points": 3,
+     "tolerance": 1
+    },
+    {
+     "id": "q2",
+     "type": "choix",
+     "enonce": "Avec la sous-location de 4 mois à 75 %, quel calcul donne ton coût NET annuel ?",
+     "options": [
+      "{loyer} x 8",
+      "{loyer} x 12 - {loyer} x 0.75 x 4",
+      "{loyer} x 12 - {loyer} x 4",
+      "{loyer} x 8 x 0.75"
+     ],
+     "solution": 1,
+     "points": 4
+    },
+    {
+     "id": "q3",
+     "type": "nombre",
+     "enonce": "En utilisant la bonne méthode, quel est ton coût net annuel ? (en $)",
+     "solution": "loyer * 12 - loyer * 0.75 * 4",
+     "points": 3,
+     "tolerance": 2
+    }
+   ]
+  },
+  {
+   "jour": 3,
+   "titre": "Le budget mensuel",
+   "histoire": "Voici ton mois type. Revenus : travail à temps partiel, {heures} h par semaine à {salaire} $/h (un mois = 4,33 semaines). Dépenses mensuelles : loyer {loyer} $, nourriture {nourriture} $, transport {transport} $, autres {autres} $.",
+   "variables": {
+    "loyer": {
+     "type": "dossier"
+    },
+    "heures": {
+     "type": "int",
+     "min": 8,
+     "max": 15
+    },
+    "salaire": {
+     "type": "float",
+     "min": 15,
+     "max": 17
+    },
+    "nourriture": {
+     "type": "int",
+     "min": 300,
+     "max": 450
+    },
+    "transport": {
+     "type": "int",
+     "min": 90,
+     "max": 150
+    },
+    "autres": {
+     "type": "int",
+     "min": 120,
+     "max": 250
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel est ton solde mensuel (revenus moins dépenses) ? (en $, négatif si déficit)",
+     "solution": "(heures * salaire * 4.33) - (loyer + nourriture + transport + autres)",
+     "points": 4,
+     "tolerance": 2
+    },
+    {
+     "id": "q2",
+     "type": "choix",
+     "enonce": "Tu veux économiser 200 $ par mois. Pour savoir quel pourcentage de tes dépenses ça représente, quel calcul est correct ?",
+     "options": [
+      "200 / revenus x 100",
+      "200 / (loyer + nourriture + transport + autres) x 100",
+      "(dépenses - 200) / dépenses x 100",
+      "200 x 100 / 200"
+     ],
+     "solution": 1,
+     "points": 3
+    },
+    {
+     "id": "q3",
+     "type": "nombre",
+     "enonce": "En utilisant la bonne méthode, quel est ce pourcentage ? (en %, 1 décimale)",
+     "solution": "200 / (loyer + nourriture + transport + autres) * 100",
+     "points": 3,
+     "tolerance": 0.5
+    }
+   ]
+  },
+  {
+   "jour": 4,
+   "titre": "L'aide financière",
+   "histoire": "Tu fais ta demande à l'AFE. Ta situation : {situation}. Selon le barème 2026-2027, ton prêt mensuel est de {pret_mensuel} $ par mois d'études.",
+   "variables": {
+    "situation": {
+     "type": "choix",
+     "options": [
+      "tu vis chez tes parents",
+      "tu vis en logement autonome"
+     ]
+    },
+    "pret_mensuel": {
+     "type": "int",
+     "min": 250,
+     "max": 300
+    },
+    "total": {
+     "type": "calcule",
+     "formule": "pret_mensuel * 8"
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel est ton prêt total pour 8 mois d'études ? (en $)",
+     "solution": "pret_mensuel * 8",
+     "points": 4,
+     "tolerance": 1
+    },
+    {
+     "id": "q2",
+     "type": "choix",
+     "enonce": "L'AFE verse d'abord un prêt, puis convertit une partie en bourse après vérification. La bourse, dois-tu la rembourser ?",
+     "options": [
+      "Oui, comme le prêt",
+      "Non, elle n'est pas remboursable",
+      "Seulement si tu échoues"
+     ],
+     "solution": 1,
+     "points": 3
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Pour ton budget, tu veux connaître le montant mensuel de ce prêt. Ton prêt total est de {total} $ pour 8 mois. Quel calcul est correct ?",
+     "options": [
+      "{total} / 8",
+      "{total} / 12",
+      "{total} x 8",
+      "{total}"
+     ],
+     "solution": 0,
+     "points": 3
+    }
+   ]
+  },
+  {
+   "jour": 5,
+   "titre": "Bilan de la semaine 1",
+   "histoire": "Fin de la première semaine. Reprenons TES chiffres : frais de scolarité annuels {frais} $, loyer mensuel {loyer} $, autres dépenses mensuelles {autres} $, prêt AFE annuel {pret_annuel} $, revenus de travail annuels {revenus_travail} $.",
+   "variables": {
+    "frais": {
+     "type": "dossier"
+    },
+    "loyer": {
+     "type": "dossier"
+    },
+    "autres": {
+     "type": "int",
+     "min": 450,
+     "max": 700
+    },
+    "pret_annuel": {
+     "type": "int",
+     "min": 2000,
+     "max": 2400
+    },
+    "revenus_travail": {
+     "type": "int",
+     "min": 5000,
+     "max": 8000
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel est ton coût annuel total ? (frais + loyer x 12 + autres x 12, en $)",
+     "solution": "frais + loyer * 12 + autres * 12",
+     "points": 4,
+     "tolerance": 2
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Quel est l'écart entre ton coût annuel et ton financement annuel (prêt + travail) ? (en $, négatif si déficit)",
+     "solution": "(frais + loyer * 12 + autres * 12) - (pret_annuel + revenus_travail)",
+     "points": 3,
+     "tolerance": 2
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Ton financement couvre quel pourcentage de ton coût annuel ?",
+     "options": [
+      "financement / coût x 100",
+      "coût / financement x 100",
+      "(coût - financement) / 100",
+      "financement - coût"
+     ],
+     "solution": 0,
+     "points": 3
+    }
+   ]
+  },
+  {
+   "jour": 6,
+   "titre": "Prêt ou bourse ?",
+   "histoire": "L'AFE a calculé tes besoins financiers : {besoins} $ pour l'année. Le montant de prêt établi pour toi est de {pret} $.",
+   "variables": {
+    "besoins": {
+     "type": "int",
+     "min": 8000,
+     "max": 12000
+    },
+    "pret": {
+     "type": "int",
+     "min": 2000,
+     "max": 3000
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel est le montant de ta bourse ? (besoins moins prêt, en $)",
+     "solution": "besoins - pret",
+     "points": 4,
+     "tolerance": 1
+    },
+    {
+     "id": "q2",
+     "type": "choix",
+     "enonce": "Quand la bourse est-elle vraiment à toi ?",
+     "options": [
+      "Dès le début, en argent direct",
+      "D'abord versée en prêt, convertie après vérification de tes revenus",
+      "C'est un mythe, ça n'existe pas"
+     ],
+     "solution": 1,
+     "points": 3
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Quel pourcentage de tes besoins la bourse couvre-t-elle ?",
+     "options": [
+      "bourse / besoins x 100",
+      "prêt / besoins x 100",
+      "besoins / bourse x 100"
+     ],
+     "solution": 0,
+     "points": 3
+    }
+   ]
+  },
+  {
+   "jour": 7,
+   "titre": "Les intérêts",
+   "histoire": "Ton prêt accumulé est de {pret_total} $. Le taux est de {taux} % par année. Pendant tes études à temps plein, le gouvernement paie tous les intérêts.",
+   "variables": {
+    "pret_total": {
+     "type": "int",
+     "min": 6000,
+     "max": 12000
+    },
+    "taux": {
+     "type": "float",
+     "min": 6.0,
+     "max": 7.5
+    },
+    "taux_plus": {
+     "type": "calcule",
+     "formule": "round(taux + 1, 1)"
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "choix",
+     "enonce": "Pendant tes études à temps plein, qui paie les intérêts de ton prêt ?",
+     "options": [
+      "Toi, chaque mois",
+      "Le gouvernement",
+      "Personne, il n'y a pas d'intérêts"
+     ],
+     "solution": 1,
+     "points": 3
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Si TU devais payer les intérêts, combien pour une année complète ? (en $)",
+     "solution": "pret_total * taux / 100",
+     "points": 4,
+     "tolerance": 2
+    },
+    {
+     "id": "q3",
+     "type": "nombre",
+     "enonce": "Si le taux montait de 1 point (de {taux} % à {taux_plus} %), de combien augmenteraient tes intérêts annuels ? (en $)",
+     "solution": "pret_total * 0.01",
+     "points": 3,
+     "tolerance": 2
+    }
+   ]
+  },
+  {
+   "jour": 8,
+   "titre": "Le remboursement commence",
+   "histoire": "Tu termines tes études. Tu as 6 mois de grâce avant de commencer à rembourser le capital. Ton prêt est de {pret} $ au taux de {taux} %.",
+   "variables": {
+    "pret": {
+     "type": "int",
+     "min": 8000,
+     "max": 15000
+    },
+    "taux": {
+     "type": "float",
+     "min": 6.0,
+     "max": 7.5
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Combien de mois après la fin de tes études commences-tu à rembourser le capital ?",
+     "solution": "6",
+     "points": 3,
+     "tolerance": 0
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Pendant le délai de grâce, les intérêts courent. Combien d'intérêts par mois ? (en $)",
+     "solution": "pret * taux / 100 / 12",
+     "points": 3,
+     "tolerance": 2
+    },
+    {
+     "id": "q3",
+     "type": "nombre",
+     "enonce": "Tu rembourses le capital sur 120 mois. Quel est ton paiement mensuel total estimé (capital + intérêts) ? (en $)",
+     "solution": "pret / 120 + pret * taux / 100 / 12",
+     "points": 4,
+     "tolerance": 2
+    }
+   ]
+  },
+  {
+   "jour": 9,
+   "titre": "Le coût total",
+   "histoire": "Tu rembourses ton prêt de {pret} $ sur {annees} ans, au taux de {taux} %. Pour simplifier, on calcule les intérêts totaux ainsi : capital x taux x années.",
+   "variables": {
+    "pret": {
+     "type": "int",
+     "min": 10000,
+     "max": 18000
+    },
+    "annees": {
+     "type": "int",
+     "min": 5,
+     "max": 10
+    },
+    "taux": {
+     "type": "float",
+     "min": 6.0,
+     "max": 7.5
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel est le montant total des intérêts payés ? (en $)",
+     "solution": "pret * taux / 100 * annees",
+     "points": 4,
+     "tolerance": 5
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Les intérêts totaux représentent quel pourcentage du capital emprunté ? (en %, arrondi)",
+     "solution": "taux * annees",
+     "points": 3,
+     "tolerance": 1
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Si tu remboursais en 5 ans au lieu de {annees} ans, les intérêts totaux seraient-ils ?",
+     "options": [
+      "Identiques",
+      "Plus élevés",
+      "Moins élevés",
+      "Nuls"
+     ],
+     "solution": 2,
+     "points": 3
+    }
+   ]
+  },
+  {
+   "jour": 10,
+   "titre": "Bilan de la semaine 2",
+   "histoire": "Ta dette totale à la fin de tes études : {dette} $. La limite d'endettement cumulative pour ton programme est de {limite} $.",
+   "variables": {
+    "dette": {
+     "type": "int",
+     "min": 18000,
+     "max": 32000
+    },
+    "limite": {
+     "type": "int",
+     "min": 22000,
+     "max": 30000
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "choix",
+     "enonce": "Es-tu sous la limite d'endettement permise ?",
+     "options": [
+      "Oui",
+      "Non"
+     ],
+     "solution": "0 if dette < limite else 1",
+     "points": 3
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "De combien dépasses-tu la limite, ou es-tu en dessous ? (en $, positif si tu dépasses, négatif sinon)",
+     "solution": "dette - limite",
+     "points": 3,
+     "tolerance": 1
+    },
+    {
+     "id": "q3",
+     "type": "nombre",
+     "enonce": "De combien dois-tu réduire ta dette au minimum pour respecter la limite ? (0 si déjà conforme, en $)",
+     "solution": "max(0, dette - limite)",
+     "points": 4,
+     "tolerance": 1
+    }
+   ]
+  },
+  {
+   "jour": 11,
+   "titre": "L'imprévu",
+   "histoire": "Coup dur : ton auto te lâche. Réparation : {reparation} $. Ton solde mensuel actuel est de {solde} $. Ton coussin d'urgence est de {coussin} $.",
+   "variables": {
+    "reparation": {
+     "type": "int",
+     "min": 800,
+     "max": 1500
+    },
+    "solde": {
+     "type": "int",
+     "min": 150,
+     "max": 400
+    },
+    "coussin": {
+     "type": "int",
+     "min": 500,
+     "max": 2000
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Si tu répartis la réparation sur 12 mois, quel est ton nouveau solde mensuel ? (en $)",
+     "solution": "solde - reparation / 12",
+     "points": 4,
+     "tolerance": 2
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "En combien de mois peux-tu rembourser cette réparation si tu y consacres 150 $ par mois ? (arrondi)",
+     "solution": "round(reparation / 150)",
+     "points": 3,
+     "tolerance": 1
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Tu hésites à payer cash avec ton coussin. Quel calcul te dit combien il te restera après ?",
+     "options": [
+      "{coussin} - {reparation}",
+      "{reparation} - {coussin}",
+      "{coussin} / {reparation}"
+     ],
+     "solution": 0,
+     "points": 3
+    }
+   ]
+  },
+  {
+   "jour": 12,
+   "titre": "Travailler plus ou emprunter plus ?",
+   "histoire": "Il te manque {manque} $ cette année. Option A : travailler {heures} h de plus par semaine à {salaire} $/h pendant 40 semaines (imposé à 15 %). Option B : emprunter {manque} $ de plus, à 6,5 % sur 5 ans.",
+   "variables": {
+    "manque": {
+     "type": "int",
+     "min": 1500,
+     "max": 3000
+    },
+    "heures": {
+     "type": "int",
+     "min": 4,
+     "max": 8
+    },
+    "salaire": {
+     "type": "float",
+     "min": 15,
+     "max": 17
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "L'option A rapporte combien NET par année ? (en $)",
+     "solution": "heures * salaire * 40 * 0.85",
+     "points": 3,
+     "tolerance": 2
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Avec l'option B, quel montant total rembourseras-tu ? (capital + intérêts, en $)",
+     "solution": "manque * (1 + 0.065 * 5)",
+     "points": 3,
+     "tolerance": 2
+    },
+    {
+     "id": "q3",
+     "type": "nombre",
+     "enonce": "Sur 5 ans, de combien l'option A te rapporte-t-elle de PLUS que ce que l'option B te coûte ? (en $)",
+     "solution": "(heures * salaire * 40 * 0.85 * 5) - (manque * (1 + 0.065 * 5))",
+     "points": 4,
+     "tolerance": 5
+    }
+   ]
+  },
+  {
+   "jour": 13,
+   "titre": "Le remboursement différé",
+   "histoire": "Après tes études, tu as de la difficulté à rembourser ton prêt de {pret} $ (taux {taux} %). Il existe un programme de remboursement différé.",
+   "variables": {
+    "pret": {
+     "type": "int",
+     "min": 10000,
+     "max": 20000
+    },
+    "taux": {
+     "type": "float",
+     "min": 6.0,
+     "max": 7.5
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "choix",
+     "enonce": "Le remboursement différé, c'est quoi ?",
+     "options": [
+      "On efface une partie de ta dette",
+      "On diminue ou on suspend tes paiements, par périodes de 6 mois",
+      "On te prête de l'argent supplémentaire"
+     ],
+     "solution": 1,
+     "points": 4
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Quelle est la durée maximale totale du différé dans une vie ? (en mois)",
+     "solution": "60",
+     "points": 3,
+     "tolerance": 0
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Pendant un différé de 18 mois, qui paie les intérêts de ton prêt ?",
+     "options": [
+      "Toi, à la fin",
+      "Le gouvernement, sans que tu aies à les rembourser",
+      "Personne, ils sont effacés"
+     ],
+     "solution": 1,
+     "points": 3
+    }
+   ]
+  },
+  {
+   "jour": 14,
+   "titre": "La remise de dette",
+   "histoire": "Tu as terminé dans les délais avec une bourse chaque année. Après avoir déjà remboursé 3 000 $, tu as droit à une remise de 15 % sur le solde. Ta dette initiale était de {dette} $.",
+   "variables": {
+    "dette": {
+     "type": "int",
+     "min": 12000,
+     "max": 25000
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel est le montant de ta remise ? (en $)",
+     "solution": "(dette - 3000) * 0.15",
+     "points": 4,
+     "tolerance": 2
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Après la remise, combien te reste-t-il à rembourser ? (en $)",
+     "solution": "(dette - 3000) * 0.85",
+     "points": 3,
+     "tolerance": 2
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Par rapport à ta dette initiale de {dette} $, quel pourcentage économises-tu vraiment avec cette remise ?",
+     "options": [
+      "15 %, c'est le taux annoncé",
+      "Moins de 15 %, car 3 000 $ étaient déjà remboursés",
+      "Plus de 15 %, car la remise s'applique deux fois"
+     ],
+     "solution": 1,
+     "points": 3
+    }
+   ]
+  },
+  {
+   "jour": 15,
+   "titre": "Le verdict final",
+   "histoire": "Tu as terminé tes études. Dette finale : {dette} $, taux {taux} %, remboursement sur {annees} ans. Ton premier emploi te paie {salaire} $ par mois.",
+   "variables": {
+    "dette": {
+     "type": "int",
+     "min": 15000,
+     "max": 30000
+    },
+    "taux": {
+     "type": "float",
+     "min": 6.0,
+     "max": 7.5
+    },
+    "annees": {
+     "type": "int",
+     "min": 5,
+     "max": 10
+    },
+    "salaire": {
+     "type": "int",
+     "min": 2800,
+     "max": 4200
+    }
+   },
+   "duree_min": 15,
+   "questions": [
+    {
+     "id": "q1",
+     "type": "nombre",
+     "enonce": "Quel sera ton paiement mensuel ? ((capital + intérêts totaux) / nombre de mois, en $)",
+     "solution": "(dette + dette * taux / 100 * annees) / (annees * 12)",
+     "points": 4,
+     "tolerance": 2
+    },
+    {
+     "id": "q2",
+     "type": "nombre",
+     "enonce": "Quel pourcentage de ton salaire ce paiement représente-t-il ? (en %, 1 décimale)",
+     "solution": "((dette + dette * taux / 100 * annees) / (annees * 12)) / salaire * 100",
+     "points": 3,
+     "tolerance": 0.5
+    },
+    {
+     "id": "q3",
+     "type": "choix",
+     "enonce": "Les experts recommandent maximum 15 % du revenu pour les dettes. Ta situation est-elle saine ?",
+     "options": [
+      "Oui, sous les 15 %",
+      "Non, au-dessus des 15 %"
+     ],
+     "solution": "0 if ((dette + dette * taux / 100 * annees) / (annees * 12)) / salaire * 100 <= 15 else 1",
+     "points": 3
+    }
+   ]
+  }
+ ]
 }

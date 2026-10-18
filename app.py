@@ -84,7 +84,7 @@ SEL = "financement-2026"
 EVAL_NS = {"__builtins__": {}, "max": max, "min": min, "sum": sum,
            "range": range, "round": round, "abs": abs}
 
-def generer_valeur(rng, spec):
+def generer_valeur(rng, spec, ctx=None):
     t = spec["type"]
     if t == "int":
         return rng.randint(spec["min"], spec["max"])
@@ -92,6 +92,8 @@ def generer_valeur(rng, spec):
         return round(rng.uniform(spec["min"], spec["max"]), 2)
     if t == "choix":
         return rng.choice(spec["options"])
+    if t == "calcule":
+        return eval(spec["formule"], EVAL_NS, dict(ctx or {}))
     raise ValueError(t)
 
 def obtenir_profil(username, jour):
@@ -106,14 +108,19 @@ def obtenir_profil(username, jour):
     if jour == 1:
         dossier = {}
         for nom, spec in act["variables"].items():
-            dossier[nom] = generer_valeur(rng, spec)
+            dossier[nom] = generer_valeur(rng, spec, dossier)
     else:
         d1 = q1("SELECT params FROM fq_profils WHERE username=:u AND jour=1", u=username)
         dossier = json.loads(d1["params"])["dossier"] if d1 else {}
     params = {"dossier": dossier, "vars": {}}
     for nom, spec in act["variables"].items():
         if jour == 1 or spec["type"] == "dossier":
-            params["vars"][nom] = dossier[nom]
+            if spec["type"] == "calcule":
+                params["vars"][nom] = generer_valeur(rng, spec, {**dossier, **params["vars"]})
+            else:
+                params["vars"][nom] = dossier[nom]
+        elif spec["type"] == "calcule":
+            params["vars"][nom] = generer_valeur(rng, spec, params["vars"])
         else:
             params["vars"][nom] = generer_valeur(rng, spec)
     exec_sql("INSERT INTO fq_profils (username, jour, params, debut) VALUES (:u,:j,:p,'')",
@@ -316,9 +323,13 @@ def afficher_termine(i):
             st.markdown(f"**{qu['enonce']}**")
             v = rep.get(qu["id"])
             if qu["type"] == "choix":
-                st.write(f"Ta réponse : {qu['options'][int(v)] if v is not None else '—'}")
                 try:
-                    att = qu["options"][int(float(eval(str(qu['solution']), EVAL_NS, dict(variables))))]
+                    opts_fmt = [o.format(**variables) for o in qu["options"]]
+                except KeyError:
+                    opts_fmt = qu["options"]
+                st.write(f"Ta réponse : {opts_fmt[int(v)] if v is not None else '—'}")
+                try:
+                    att = opts_fmt[int(float(eval(str(qu['solution']), EVAL_NS, dict(variables))))]
                     st.write(f"Bonne réponse : {att}")
                 except Exception:
                     pass
@@ -359,8 +370,12 @@ def afficher_activite(i):
             if qu["type"] == "nombre":
                 reponses[qu["id"]] = st.number_input("Ta réponse", value=None, key=f"{i}_{qu['id']}", format="%.2f")
             elif qu["type"] == "choix":
-                reponses[qu["id"]] = st.radio("Choisis", options=list(range(len(qu["options"]))),
-                                             format_func=lambda x: qu["options"][x], key=f"{i}_{qu['id']}")
+                try:
+                    opts_fmt = [o.format(**variables) for o in qu["options"]]
+                except KeyError:
+                    opts_fmt = qu["options"]
+                reponses[qu["id"]] = st.radio("Choisis", options=list(range(len(opts_fmt))),
+                                             format_func=lambda x, o=opts_fmt: o[x], key=f"{i}_{qu['id']}")
             else:
                 reponses[qu["id"]] = st.text_area("Ta réponse", key=f"{i}_{qu['id']}")
         envoyer = st.form_submit_button("Envoyer (définitif)", use_container_width=True)
@@ -392,7 +407,11 @@ def afficher_activite(i):
                 try:
                     att = eval(qu["solution"], EVAL_NS, dict(variables))
                     if qu["type"] == "choix":
-                        att = qu["options"][int(float(att))]
+                        try:
+                            opts_fmt = [o.format(**variables) for o in qu["options"]]
+                        except KeyError:
+                            opts_fmt = qu["options"]
+                        att = opts_fmt[int(float(att))]
                     st.write(f"✗ {qu['id']} : raté (bonne réponse : {att})")
                 except Exception:
                     st.write(f"✗ {qu['id']} : raté")

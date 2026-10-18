@@ -71,12 +71,12 @@
           "id": "q2",
           "type": "choix",
           "points": 4,
-          "enonce": "Ton coût total est de {cout_total} $ et ton budget de {budget} $. Un ami te dit : « Ton budget couvre ton coût total, donc tu n'as aucun problème. » Qu'est-ce qui cloche dans son raisonnement ?",
+          "enonce": "Ton coût total est de {cout_total} $ et ton budget de {budget} $. Un ami te dit : « Ton budget couvre ton coût total, donc ton plan est équilibré. » Qu'est-ce qui cloche dans son raisonnement ?",
           "options": [
-            "Rien, il a tout à fait raison.",
-            "Le budget doit aussi couvrir la nourriture, le transport et les autres dépenses, pas juste l'école et le loyer.",
-            "Il aurait dû diviser le budget par 12 avant de comparer.",
-            "Le coût total ne comprend pas les frais de scolarité."
+            "Rien : si le total des coûts est couvert par le budget, le plan est équilibré.",
+            "Le budget doit aussi couvrir les dépenses courantes (nourriture, transport, etc.), pas seulement l'école et le loyer.",
+            "Il compare un budget total à un coût total, mais il faudrait raisonner en montant par mois.",
+            "Son raisonnement tient, à condition de garder une réserve d'environ 10 % pour les imprévus."
           ],
           "solution": "1"
         },
@@ -84,14 +84,14 @@
           "id": "q3",
           "type": "choix",
           "points": 3,
-          "enonce": "Une fois le programme payé, il te reste {reste_mois} $ par mois. Pour un étudiant qui doit aussi se nourrir, se déplacer et vivre, c'est :",
+          "enonce": "Une fois le programme payé, il te reste {reste_mois} $ par mois pour vivre (nourriture, transport, tout le reste). Quelle est la décision la plus judicieuse ?",
           "options": [
-            "Large, tu peux épargner sans problème.",
-            "Serré mais faisable avec de la discipline.",
-            "Impossible à tenir : ton plan ne fonctionne pas comme ça.",
-            "Ça dépend seulement de la ville où tu étudies."
+            "C'est suffisant si tu cuisines et que tu prends le transport en commun.",
+            "C'est trop juste : tu dois trouver une source de revenus ou revoir ton budget à la hausse.",
+            "C'est impossible, tu devrais abandonner ce programme.",
+            "C'est serré mais gérable si tu évites les imprévus."
           ],
-          "solution": "0 if reste_mois >= 500 else (1 if reste_mois >= 200 else 2)"
+          "solution": "0 if reste_mois >= 400 else (3 if reste_mois >= 150 else 1)"
         }
       ]
     },

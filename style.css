@@ -19,12 +19,47 @@
     font-family: 'Material Symbols Rounded', 'Material Icons' !important;
 }
 
-/* ===== FOND CINÉMA ===== */
+/* ===== FOND : LE BUREAU, LA NUIT ===== */
 .stApp {
     background:
-        radial-gradient(ellipse 80% 28% at 50% -4%, rgba(0,230,118,0.09) 0%, transparent 60%),
-        radial-gradient(ellipse 70% 22% at 50% 106%, rgba(0,230,118,0.05) 0%, transparent 60%),
-        #08080a;
+        /* cône de lumière de la lampe de banquier */
+        radial-gradient(ellipse 55% 30% at 50% -2%, rgba(0,230,118,0.14) 0%, rgba(0,230,118,0.04) 45%, transparent 70%),
+        /* halo bas */
+        radial-gradient(ellipse 80% 20% at 50% 105%, rgba(0,230,118,0.05) 0%, transparent 60%),
+        /* vignette */
+        radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.55) 100%),
+        #070708;
+}
+
+/* ===== ABAT-JOUR (lampe de banquier, pur CSS) ===== */
+.lampe-banquiere {
+    width: 220px;
+    margin: 0 auto;
+}
+.lampe-banquiere .abat {
+    width: 220px;
+    height: 50px;
+    background: linear-gradient(180deg, #0d3b24 0%, #085c31 45%, #0a4a29 100%);
+    border-radius: 10px 10px 30px 30px / 10px 10px 46px 46px;
+    box-shadow: 0 8px 34px rgba(0,230,118,0.4), inset 0 -10px 20px rgba(0,0,0,0.5);
+    position: relative;
+}
+.lampe-banquiere .abat::after {
+    content: "";
+    position: absolute;
+    left: 22px; right: 22px; bottom: 5px;
+    height: 12px;
+    background: rgba(0,230,118,0.9);
+    border-radius: 50%;
+    filter: blur(8px);
+}
+.lampe-banquiere .faisceau {
+    width: 360px;
+    height: 120px;
+    margin: -4px auto 0 auto;
+    background: linear-gradient(180deg, rgba(0,230,118,0.18) 0%, transparent 100%);
+    clip-path: polygon(30% 0, 70% 0, 100% 100%, 0% 100%);
+    filter: blur(5px);
 }
 
 /* ===== TYPO ===== */
@@ -38,15 +73,14 @@
     letter-spacing: 3px;
     font-weight: 400 !important;
 }
-/* Les spans héritent, sauf les icônes (règle ci-dessus) */
-.stApp span:not([class*="material"]) {
-    font-family: 'Work Sans', sans-serif;
-}
+/* IMPORTANT : ne jamais imposer une police aux spans (icônes Material de Streamlit).
+   Chaque composant personnalisé déclare sa propre police. */
 
 /* ===== EN-TÊTE ===== */
 .cash-surtitre {
     text-align: center;
     color: var(--cash);
+    font-family: 'Work Sans', sans-serif;
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 6px;
@@ -56,89 +90,107 @@
 .cash-titre {
     font-family: 'Bebas Neue', sans-serif;
     text-align: center;
-    font-size: 3.4rem;
-    letter-spacing: 5px;
+    font-size: 3.6rem;
+    letter-spacing: 6px;
     color: #fff;
     line-height: 1;
     margin: 0;
     padding: 0 6px;
-    text-shadow: 0 0 40px rgba(0,230,118,0.25);
+    text-shadow: 0 0 50px rgba(0,230,118,0.3), 0 2px 0 rgba(0,0,0,0.6);
 }
 .cash-titre .accent { color: var(--cash); }
 .cash-filet {
-    width: 140px;
+    width: 160px;
     height: 3px;
     background: linear-gradient(90deg, transparent, var(--cash), transparent);
-    margin: 16px auto;
-    box-shadow: 0 0 12px rgba(0,230,118,0.5);
+    margin: 18px auto;
+    box-shadow: 0 0 14px rgba(0,230,118,0.55);
 }
 .cash-sous {
     text-align: center;
     color: var(--doux);
+    font-family: 'Work Sans', sans-serif;
     font-size: 0.85rem;
     letter-spacing: 3px;
     text-transform: uppercase;
 }
 
-/* ===== CARTES JOURS ===== */
+/* ===== CARTES JOURS : dossiers sur le bureau ===== */
 .jours-grille {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
-    margin: 20px 0;
+    margin: 22px 0;
 }
 @media (max-width: 640px) {
     .jours-grille { grid-template-columns: repeat(3, 1fr); gap: 8px; }
 }
 .jour-carte {
-    background: linear-gradient(165deg, #17171a 0%, #0e0e11 100%);
+    background: linear-gradient(165deg, #1a1a1e 0%, #0e0e11 100%);
     border: 1px solid var(--bordure);
-    border-radius: 12px;
-    padding: 16px 10px 14px 10px;
+    border-radius: 10px;
+    padding: 18px 10px 14px 10px;
     text-align: center;
     position: relative;
     overflow: hidden;
-    transition: transform 0.15s;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
 }
 .jour-carte::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 3px;
-    background: #333;
+    height: 4px;
+    background: #2e2e34;
+}
+.jour-carte::after {
+    /* reflet */
+    content: "";
+    position: absolute;
+    top: 0; left: -60%;
+    width: 50%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.04), transparent);
+    transform: skewX(-18deg);
 }
 .jour-carte .jnum {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.1rem;
+    font-size: 2.3rem;
     color: #fff;
     line-height: 1;
 }
-.jour-carte .jdate { font-size: 0.72rem; color: var(--doux); margin-top: 4px; }
+.jour-carte .jdate {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.72rem;
+    color: var(--doux);
+    margin-top: 5px;
+    letter-spacing: 1px;
+}
 .jour-carte .jstat {
-    font-size: 0.7rem;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    margin-top: 8px;
+    margin-top: 9px;
 }
 .jour-carte.fait::before { background: var(--cash); }
 .jour-carte.fait .jstat { color: var(--cash); }
-.jour-carte.fait { box-shadow: 0 0 18px rgba(0,230,118,0.12); }
+.jour-carte.fait { box-shadow: 0 0 20px rgba(0,230,118,0.14), 0 6px 18px rgba(0,0,0,0.5); }
 .jour-carte.aujourdhui {
-    border-color: rgba(0,230,118,0.6);
-    box-shadow: 0 0 24px rgba(0,230,118,0.28);
+    border-color: rgba(0,230,118,0.65);
+    box-shadow: 0 0 28px rgba(0,230,118,0.3), 0 8px 22px rgba(0,0,0,0.5);
+    transform: translateY(-3px);
     animation: glow-cash 2.4s ease-in-out infinite;
 }
-.jour-carte.aujourdhui::before { background: var(--cash); }
+.jour-carte.aujourdhui::before { background: var(--cash); box-shadow: 0 0 10px rgba(0,230,118,0.8); }
 .jour-carte.aujourdhui .jstat { color: var(--cash); }
 .jour-carte.manque::before { background: var(--rouge); }
 .jour-carte.manque .jstat { color: var(--rouge); }
-.jour-carte.manque { opacity: 0.7; }
-.jour-carte.verrouille .jnum { color: #3a3a40; }
-.jour-carte.verrouille .jstat { color: #4a4a50; }
+.jour-carte.manque { opacity: 0.65; }
+.jour-carte.verrouille .jnum { color: #34343b; }
+.jour-carte.verrouille .jstat { color: #45454d; }
 @keyframes glow-cash {
-    0%, 100% { box-shadow: 0 0 14px rgba(0,230,118,0.18); }
-    50% { box-shadow: 0 0 30px rgba(0,230,118,0.4); }
+    0%, 100% { box-shadow: 0 0 16px rgba(0,230,118,0.2), 0 8px 22px rgba(0,0,0,0.5); }
+    50% { box-shadow: 0 0 34px rgba(0,230,118,0.42), 0 8px 22px rgba(0,0,0,0.5); }
 }
 
 /* ===== MISE EN SITUATION ===== */

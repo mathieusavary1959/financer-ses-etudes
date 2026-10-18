@@ -63,6 +63,8 @@ def afficher_minuteur(secondes):
     """, height=105)
 
 def vault_header():
+    st.markdown('<div class="lampe-banquiere"><div class="abat"></div><div class="faisceau"></div></div>',
+                unsafe_allow_html=True)
     st.markdown('<div class="cash-surtitre">15 jours · 150 points · sans retour</div>', unsafe_allow_html=True)
     st.markdown('<div class="cash-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="cash-filet"></div>', unsafe_allow_html=True)

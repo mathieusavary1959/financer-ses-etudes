@@ -10,7 +10,7 @@
           "type": "nombre",
           "enonce": "Coût total des frais de scolarité pour tout le programme (en $)",
           "solution": "frais * duree",
-          "points": 5,
+          "points": 3,
           "tolerance": 1
         },
         {
@@ -18,8 +18,16 @@
           "type": "nombre",
           "enonce": "Coût total du logement pour toute la durée du programme (en $)",
           "solution": "loyer * 12 * duree",
-          "points": 5,
+          "points": 3,
           "tolerance": 2
+        },
+        {
+          "id": "q3",
+          "type": "nombre",
+          "enonce": "Quel pourcentage du coût total (frais de scolarité + logement) représentent les frais de scolarité ? (en %, 1 décimale)",
+          "solution": "frais * duree / (frais * duree + loyer * 12 * duree) * 100",
+          "points": 4,
+          "tolerance": 0.6
         }
       ],
       "titre": "Ton programme",

@@ -302,127 +302,157 @@ if est_prof:
 # ---------------- VUE ÉLÈVE ----------------
 st.title("Financer ses études")
 aujourdhui = date.today()
-jour_debloque = 0
-for i, d in enumerate(JOURS, start=1):
-    if d <= aujourdhui:
-        jour_debloque = i
-if st.session_state.get("groupe") == "TEST":
-    jour_debloque = 15  # compte test : tout débloqué
+is_test = st.session_state.get("groupe") == "TEST"
 
-onglets = st.tabs([f"Jour {i}" for i in range(1, 16)])
-for i in range(1, 16):
-    with onglets[i - 1]:
-        d = JOURS[i - 1]
-        fait = q1("SELECT submitted_at FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i)
-        if i > jour_debloque:
-            st.info(f"Ce jour se débloque le {d.strftime('%d/%m/%Y')}.")
-            continue
-        if fait:
-            st.success("Terminé. Aucun retour en arrière possible.")
-            r = q1("SELECT score_auto, notes_prof, reponses FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i)
-            tot = float(r["score_auto"] or 0)
-            try:
-                tot += sum(float(v) for v in json.loads(r["notes_prof"] or "{}").values())
-            except Exception:
-                pass
-            st.metric("Note", f"{tot:.1f} / 10")
-            with st.expander("Revoir mes réponses"):
-                act = ACTIVITES[i]
-                pr = q1("SELECT params FROM fq_profils WHERE username=:u AND jour=:j", u=user, j=i)
-                variables = json.loads(pr["params"])["vars"] if pr else {}
-                rep = json.loads(r["reponses"] or "{}")
-                for qu in act["questions"]:
-                    st.markdown(f"**{qu['enonce']}**")
-                    v = rep.get(qu["id"])
-                    if qu["type"] == "choix":
-                        st.write(f"Ta réponse : {qu['options'][int(v)] if v is not None else '—'}")
-                        try:
-                            att = qu["options"][int(float(eval(str(qu['solution']), {'__builtins__': {}}, dict(variables))))]
-                            st.write(f"Bonne réponse : {att}")
-                        except Exception:
-                            pass
-                    elif qu["type"] == "nombre":
-                        st.write(f"Ta réponse : {v if v is not None else '—'}")
-                        try:
-                            att = round(float(eval(qu["solution"], {"__builtins__": {}}, dict(variables))), 2)
-                            st.write(f"Bonne réponse : {att}")
-                        except Exception:
-                            pass
-                    else:
-                        st.write(v or "—")
-            continue
-        # activité du jour
+# jour strict : seul le jour calendaire d'aujourd'hui est jouable
+jour_courant = None
+for i, d in enumerate(JOURS, start=1):
+    if d == aujourdhui:
+        jour_courant = i
+        break
+
+def statut_jour(i):
+    fait = q1("SELECT submitted_at FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i)
+    if fait:
+        return "fait"
+    if JOURS[i - 1] < aujourdhui:
+        return "manque"
+    if JOURS[i - 1] == aujourdhui:
+        return "aujourdhui"
+    return "verrouille"
+
+def afficher_termine(i):
+    st.success("Terminé. Aucun retour en arrière possible.")
+    r = q1("SELECT score_auto, notes_prof, reponses FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i)
+    tot = float(r["score_auto"] or 0)
+    try:
+        tot += sum(float(v) for v in json.loads(r["notes_prof"] or "{}").values())
+    except Exception:
+        pass
+    st.metric("Note", f"{tot:.1f} / 10")
+    with st.expander("Revoir mes réponses"):
         act = ACTIVITES[i]
-        profil = obtenir_profil(user, i)
-        variables = profil["vars"]
-        try:
-            histoire = act["histoire"].format(**variables)
-        except KeyError:
-            histoire = act["histoire"]
-        st.subheader(f"Jour {i} : {act['titre']}")
-        st.write(histoire)
-        # minuteur
-        if "debut" not in st.session_state or st.session_state.get("jour_minuteur") != i:
-            st.session_state.debut = time.time()
-            st.session_state.jour_minuteur = i
-        reste = DUREE_MIN * 60 - (time.time() - st.session_state.debut)
-        if reste <= 0:
-            st.error("Temps écoulé. Tu dois terminer avec ce que tu as.")
-            reste = 0
-        else:
-            st.caption(f"Temps restant : {int(reste // 60)} min {int(reste % 60)} s")
-        with st.form(f"form_{i}"):
-            reponses = {}
-            for qu in act["questions"]:
-                st.markdown(f"**{qu['enonce']}**")
-                if qu["type"] == "nombre":
-                    reponses[qu["id"]] = st.number_input("Ta réponse", value=None, key=f"{i}_{qu['id']}", format="%.2f")
-                elif qu["type"] == "choix":
-                    reponses[qu["id"]] = st.radio("Choisis", options=list(range(len(qu["options"]))),
-                                                 format_func=lambda x: qu["options"][x], key=f"{i}_{qu['id']}")
-                else:
-                    reponses[qu["id"]] = st.text_area("Ta réponse", key=f"{i}_{qu['id']}")
-            envoyer = st.form_submit_button("Envoyer (définitif)", use_container_width=True)
-        if envoyer:
-            # sécurité : déjà envoyé ? (double-clic)
-            if q1("SELECT submitted_at FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i):
-                st.warning("Réponse déjà envoyée.")
+        pr = q1("SELECT params FROM fq_profils WHERE username=:u AND jour=:j", u=user, j=i)
+        variables = json.loads(pr["params"])["vars"] if pr else {}
+        rep = json.loads(r["reponses"] or "{}")
+        for qu in act["questions"]:
+            st.markdown(f"**{qu['enonce']}**")
+            v = rep.get(qu["id"])
+            if qu["type"] == "choix":
+                st.write(f"Ta réponse : {qu['options'][int(v)] if v is not None else '—'}")
+                try:
+                    att = qu["options"][int(float(eval(str(qu['solution']), {'__builtins__': {}}, dict(variables))))]
+                    st.write(f"Bonne réponse : {att}")
+                except Exception:
+                    pass
+            elif qu["type"] == "nombre":
+                st.write(f"Ta réponse : {v if v is not None else '—'}")
+                try:
+                    att = round(float(eval(qu["solution"], {"__builtins__": {}}, dict(variables))), 2)
+                    st.write(f"Bonne réponse : {att}")
+                except Exception:
+                    pass
+            else:
+                st.write(v or "—")
+
+def afficher_activite(i):
+    act = ACTIVITES[i]
+    profil = obtenir_profil(user, i)
+    variables = profil["vars"]
+    try:
+        histoire = act["histoire"].format(**variables)
+    except KeyError:
+        histoire = act["histoire"]
+    st.subheader(f"Jour {i} : {act['titre']}")
+    st.caption(f"À faire aujourd'hui seulement. {DUREE_MIN} minutes, un seul envoi.")
+    st.write(histoire)
+    if "debut" not in st.session_state or st.session_state.get("jour_minuteur") != i:
+        st.session_state.debut = time.time()
+        st.session_state.jour_minuteur = i
+    reste = DUREE_MIN * 60 - (time.time() - st.session_state.debut)
+    if reste <= 0:
+        st.error("Temps écoulé. Tu dois terminer avec ce que tu as.")
+        reste = 0
+    else:
+        st.caption(f"Temps restant : {int(reste // 60)} min {int(reste % 60)} s")
+    with st.form(f"form_{i}"):
+        reponses = {}
+        for qu in act["questions"]:
+            st.markdown(f"**{qu['enonce']}**")
+            if qu["type"] == "nombre":
+                reponses[qu["id"]] = st.number_input("Ta réponse", value=None, key=f"{i}_{qu['id']}", format="%.2f")
+            elif qu["type"] == "choix":
+                reponses[qu["id"]] = st.radio("Choisis", options=list(range(len(qu["options"]))),
+                                             format_func=lambda x: qu["options"][x], key=f"{i}_{qu['id']}")
+            else:
+                reponses[qu["id"]] = st.text_area("Ta réponse", key=f"{i}_{qu['id']}")
+        envoyer = st.form_submit_button("Envoyer (définitif)", use_container_width=True)
+    if envoyer:
+        if q1("SELECT submitted_at FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i):
+            st.warning("Réponse déjà envoyée.")
+            st.stop()
+        for qu in act["questions"]:
+            if qu["type"] == "texte" and compter_mots(reponses.get(qu["id"])) < qu["min_mots"]:
+                st.error(f"Question texte : écris au moins {qu['min_mots']} mots (tu en as {compter_mots(reponses.get(qu['id']))}).")
                 st.stop()
-            # vérif longueur textes
-            for qu in act["questions"]:
-                if qu["type"] == "texte" and compter_mots(reponses.get(qu["id"])) < qu["min_mots"]:
-                    st.error(f"Question texte : écris au moins {qu['min_mots']} mots (tu en as {compter_mots(reponses.get(qu['id']))}).")
-                    st.stop()
-            # normaliser
-            rep_json = {}
-            for qu in act["questions"]:
-                v = reponses.get(qu["id"])
-                rep_json[qu["id"]] = None if v is None else (v if qu["type"] != "nombre" else float(v))
-            score_auto, detail = corriger(act, variables, rep_json)
-            exec_sql("""INSERT INTO fq_reponses (username, jour, reponses, score_auto, notes_prof, submitted_at)
-                        VALUES (:u,:j,:r,:s,'{}',:t)""",
-                     u=user, j=i, r=json.dumps(rep_json, ensure_ascii=False), s=score_auto,
-                     t=datetime.now().isoformat(timespec="seconds"))
-            # feedback immédiat sur les calculs
-            st.success("Envoyé. C'est verrouillé.")
-            for qu in act["questions"]:
-                if qu["type"] == "texte":
-                    continue
-                d_ = detail[qu["id"]]
-                if d_["ok"]:
-                    st.write(f"✓ {qu['id']} : bonne réponse ({d_['pts']} pts)")
-                else:
-                    try:
-                        att = eval(qu["solution"], {"__builtins__": {}}, dict(variables))
-                        if qu["type"] == "choix":
-                            att = qu["options"][int(float(att))]
-                        st.write(f"✗ {qu['id']} : raté (bonne réponse : {att})")
-                    except Exception:
-                        st.write(f"✗ {qu['id']} : raté")
-            st.write(f"**Score automatique : {score_auto:.1f} / 10** (les textes seront corrigés par ton prof)")
-            if "debut" in st.session_state:
-                del st.session_state["debut"]
-            st.rerun()
+        rep_json = {}
+        for qu in act["questions"]:
+            v = reponses.get(qu["id"])
+            rep_json[qu["id"]] = None if v is None else (v if qu["type"] != "nombre" else float(v))
+        score_auto, detail = corriger(act, variables, rep_json)
+        exec_sql("""INSERT INTO fq_reponses (username, jour, reponses, score_auto, notes_prof, submitted_at)
+                    VALUES (:u,:j,:r,:s,'{}',:t)""",
+                 u=user, j=i, r=json.dumps(rep_json, ensure_ascii=False), s=score_auto,
+                 t=datetime.now().isoformat(timespec="seconds"))
+        st.success("Envoyé. C'est verrouillé.")
+        for qu in act["questions"]:
+            if qu["type"] == "texte":
+                continue
+            d_ = detail[qu["id"]]
+            if d_["ok"]:
+                st.write(f"✓ {qu['id']} : bonne réponse ({d_['pts']} pts)")
+            else:
+                try:
+                    att = eval(qu["solution"], {"__builtins__": {}}, dict(variables))
+                    if qu["type"] == "choix":
+                        att = qu["options"][int(float(att))]
+                    st.write(f"✗ {qu['id']} : raté (bonne réponse : {att})")
+                except Exception:
+                    st.write(f"✗ {qu['id']} : raté")
+        st.write(f"**Score automatique : {score_auto:.1f} / 10** (les textes seront corrigés par ton prof)")
+        if "debut" in st.session_state:
+            del st.session_state["debut"]
+        st.rerun()
+
+def afficher_progression():
+    st.subheader("Ma progression")
+    icones = {"fait": "✓", "manque": "✗", "aujourdhui": "→", "verrouille": "·"}
+    lignes = []
+    for rng in range(0, 15, 5):
+        cols = st.columns(5)
+        for k in range(5):
+            i = rng + k + 1
+            s = statut_jour(i)
+            cols[k].write(f"J{i} {icones[s]}")
+    st.divider()
+
+if is_test:
+    st.caption("Mode test : tous les jours accessibles.")
+    onglets = st.tabs([f"J{i}" for i in range(1, 16)])
+    for i in range(1, 16):
+        with onglets[i - 1]:
+            if statut_jour(i) == "fait":
+                afficher_termine(i)
+            else:
+                afficher_activite(i)
+else:
+    afficher_progression()
+    if jour_courant is None:
+        st.info("Aucune activité aujourd'hui. Reviens un jour d'école.")
+    elif statut_jour(jour_courant) == "fait":
+        afficher_termine(jour_courant)
+    else:
+        afficher_activite(jour_courant)
 
 st.sidebar.write(f"Connecté : {user}")
 if st.sidebar.button("Quitter"):

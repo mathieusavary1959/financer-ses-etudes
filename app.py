@@ -364,8 +364,14 @@ def afficher_termine(i):
         pr = q1("SELECT params FROM fq_profils WHERE username=:u AND jour=:j", u=user, j=i)
         variables = json.loads(pr["params"])["vars"] if pr else {}
         rep = json.loads(r["reponses"] or "{}")
+        if not any(v is not None for v in rep.values()):
+            st.info("Tu n'as répondu à aucune question ce jour-là.")
         for qu in act["questions"]:
-            st.markdown(f"**{qu['enonce']}**")
+            try:
+                enonce_fmt = qu['enonce'].format(**variables)
+            except KeyError:
+                enonce_fmt = qu['enonce']
+            st.markdown(f"**{enonce_fmt}**")
             v = rep.get(qu["id"])
             if qu["type"] == "choix":
                 try:
@@ -462,6 +468,9 @@ def afficher_activite(i):
                 except Exception:
                     st.write(f"✗ {qu['id']} : raté")
         st.write(f"**Score : {score_auto:.1f} / 10**")
+        reps_tot = q("SELECT score_auto FROM fq_reponses WHERE username=:u", u=user)
+        total = round(sum(float(x["score_auto"] or 0) for _, x in reps_tot.iterrows()), 1)
+        st.write(f"**Cagnotte : {total:.1f} / 150**")
         if "debut" in st.session_state:
             del st.session_state["debut"]
         st.rerun()

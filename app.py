@@ -319,13 +319,37 @@ for i in range(1, 16):
             continue
         if fait:
             st.success("Terminé. Aucun retour en arrière possible.")
-            r = q1("SELECT score_auto, notes_prof FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i)
+            r = q1("SELECT score_auto, notes_prof, reponses FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i)
             tot = float(r["score_auto"] or 0)
             try:
                 tot += sum(float(v) for v in json.loads(r["notes_prof"] or "{}").values())
             except Exception:
                 pass
             st.metric("Note", f"{tot:.1f} / 10")
+            with st.expander("Revoir mes réponses"):
+                act = ACTIVITES[i]
+                pr = q1("SELECT params FROM fq_profils WHERE username=:u AND jour=:j", u=user, j=i)
+                variables = json.loads(pr["params"])["vars"] if pr else {}
+                rep = json.loads(r["reponses"] or "{}")
+                for qu in act["questions"]:
+                    st.markdown(f"**{qu['enonce']}**")
+                    v = rep.get(qu["id"])
+                    if qu["type"] == "choix":
+                        st.write(f"Ta réponse : {qu['options'][int(v)] if v is not None else '—'}")
+                        try:
+                            att = qu["options"][int(float(eval(str(qu['solution']), {'__builtins__': {}}, dict(variables))))]
+                            st.write(f"Bonne réponse : {att}")
+                        except Exception:
+                            pass
+                    elif qu["type"] == "nombre":
+                        st.write(f"Ta réponse : {v if v is not None else '—'}")
+                        try:
+                            att = round(float(eval(qu["solution"], {"__builtins__": {}}, dict(variables))), 2)
+                            st.write(f"Bonne réponse : {att}")
+                        except Exception:
+                            pass
+                    else:
+                        st.write(v or "—")
             continue
         # activité du jour
         act = ACTIVITES[i]
@@ -360,10 +384,14 @@ for i in range(1, 16):
                     reponses[qu["id"]] = st.text_area("Ta réponse", key=f"{i}_{qu['id']}")
             envoyer = st.form_submit_button("Envoyer (définitif)", use_container_width=True)
         if envoyer:
+            # sécurité : déjà envoyé ? (double-clic)
+            if q1("SELECT submitted_at FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i):
+                st.warning("Réponse déjà envoyée.")
+                st.stop()
             # vérif longueur textes
             for qu in act["questions"]:
                 if qu["type"] == "texte" and compter_mots(reponses.get(qu["id"])) < qu["min_mots"]:
-                    st.error(f"Question texte : écris au moins {qu['min_mots']} mots.")
+                    st.error(f"Question texte : écris au moins {qu['min_mots']} mots (tu en as {compter_mots(reponses.get(qu['id']))}).")
                     st.stop()
             # normaliser
             rep_json = {}
@@ -394,6 +422,7 @@ for i in range(1, 16):
             st.write(f"**Score automatique : {score_auto:.1f} / 10** (les textes seront corrigés par ton prof)")
             if "debut" in st.session_state:
                 del st.session_state["debut"]
+            st.rerun()
 
 st.sidebar.write(f"Connecté : {user}")
 if st.sidebar.button("Quitter"):

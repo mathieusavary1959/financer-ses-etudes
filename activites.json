@@ -2,23 +2,24 @@
   "activites": [
     {
       "duree_min": 15,
-      "histoire": "Tu envisages le programme suivant : {programme}, d'une durée de {duree} ans. Les frais de scolarité annuels sont de {frais} $. Tu étudies à {ville} et ton loyer mensuel est de {loyer} $.",
+      "histoire": "Pour les 15 prochains jours, voici TON dossier (attribué au hasard). Apprends ces chiffres, tu vas les réutiliser : programme {programme} ({duree} ans), frais de scolarité {frais} $ par année. Tu étudies à {ville}, loyer {loyer} $ par mois.",
       "jour": 1,
       "questions": [
         {
-          "enonce": "Quel est le coût total des frais de scolarité pour tout le programme ? (en $)",
           "id": "q1",
-          "points": 6,
+          "type": "nombre",
+          "enonce": "Coût total des frais de scolarité pour tout le programme (en $)",
           "solution": "frais * duree",
-          "tolerance": 1,
-          "type": "nombre"
+          "points": 5,
+          "tolerance": 1
         },
         {
-          "enonce": "En 2 ou 3 phrases (30 mots minimum), dis si ce programme t'intéresse vraiment et pourquoi.",
           "id": "q2",
-          "min_mots": 30,
-          "points": 4,
-          "type": "texte"
+          "type": "nombre",
+          "enonce": "Coût total du logement pour toute la durée du programme (en $)",
+          "solution": "loyer * 12 * duree",
+          "points": 5,
+          "tolerance": 2
         }
       ],
       "titre": "Ton programme",
@@ -109,7 +110,7 @@
           "type": "nombre"
         },
         {
-          "enonce": "Si ton solde est négatif, quelle dépense couperais-tu en premier et pourquoi ? (25 mots minimum)",
+          "enonce": "Si tu devais économiser 200 $ par mois, quelle dépense couperais-tu en premier et pourquoi ? (25 mots minimum)",
           "id": "q2",
           "min_mots": 25,
           "points": 3,
@@ -204,7 +205,7 @@
           "type": "nombre"
         },
         {
-          "enonce": "Ton plan est-il réaliste ? Qu'est-ce qui t'inquiète le plus dans ces chiffres ? (40 mots minimum)",
+          "enonce": "En te basant sur TES chiffres ci-dessus, ton plan est-il réaliste ? Nomme le poste de dépense qui t'inquiète le plus. (40 mots minimum)",
           "id": "q2",
           "min_mots": 40,
           "points": 4,
@@ -366,11 +367,12 @@
           "type": "nombre"
         },
         {
-          "enonce": "En une phrase (20 mots minimum), dis ce que ce chiffre te fait réaliser.",
           "id": "q2",
-          "min_mots": 20,
+          "type": "nombre",
+          "enonce": "Les intérêts totaux représentent quel pourcentage du capital emprunté ? (en %, arrondi à l'unité)",
+          "solution": "taux * annees",
           "points": 3,
-          "type": "texte"
+          "tolerance": 1
         }
       ],
       "titre": "Le coût total",
@@ -409,7 +411,7 @@
           "type": "choix"
         },
         {
-          "enonce": "Si tu dépasses la limite, que fais-tu ? Si tu es en dessous, qu'est-ce que ça change pour toi ? (40 mots minimum)",
+          "enonce": "Cette limite d'endettement change-t-elle quelque chose à ton plan ? Explique en utilisant tes chiffres. (40 mots minimum)",
           "id": "q2",
           "min_mots": 40,
           "points": 5,

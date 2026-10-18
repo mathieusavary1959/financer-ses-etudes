@@ -33,16 +33,16 @@
     font-weight: 400 !important;
 }
 
-/* ===== EN-TÊTE ===== */
-.salle-surtitre {
+/* ===== EN-TÊTE DOSSIER ===== */
+.dossier-bandeau {
     text-align: center;
     color: var(--doux);
-    font-size: 0.78rem;
-    letter-spacing: 5px;
+    font-size: 0.75rem;
+    letter-spacing: 6px;
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
-.salle-titre {
+.dossier-titre {
     font-family: 'Bebas Neue', sans-serif;
     text-align: center;
     font-size: 3rem;
@@ -52,135 +52,108 @@
     margin: 0;
     padding: 0 8px;
 }
-.salle-titre .accent { color: var(--laiton); }
-.salle-filet {
+.dossier-titre .accent { color: var(--laiton); }
+.dossier-filet {
     width: 120px;
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--laiton), transparent);
-    margin: 14px auto 6px auto;
+    margin: 14px auto;
 }
-.salle-sous {
-    text-align: center;
-    color: var(--doux);
-    font-size: 0.82rem;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-}
-
-/* ===== SCEAU ===== */
-.sceau {
-    width: 74px;
-    height: 74px;
-    border: 2px solid var(--laiton);
-    border-radius: 50%;
+.dossier-num {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 10px auto;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.7rem;
-    color: var(--laiton);
-    letter-spacing: 1px;
-    box-shadow: 0 0 22px rgba(201,162,39,0.25), inset 0 0 14px rgba(201,162,39,0.12);
-}
-
-/* ===== RANGÉE DE PUPITRES ===== */
-.pupitres {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin: 18px 0 8px 0;
-}
-@media (max-width: 640px) {
-    .pupitres { grid-template-columns: repeat(3, 1fr); }
-}
-.pupitre {
-    background: linear-gradient(180deg, #17171b 0%, #101013 100%);
-    border: 1px solid var(--bordure);
-    border-top: 3px solid #3a3a40;
-    border-radius: 8px;
-    padding: 12px 6px 10px 6px;
-    text-align: center;
-    position: relative;
-}
-.pupitre .lampe {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin: 0 auto 8px auto;
-    background: #3a3a40;
-}
-.pupitre .num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.25rem;
-    letter-spacing: 1px;
-    color: #cfcdc7;
-}
-.pupitre .dt { font-size: 0.72rem; color: var(--doux); margin-top: 2px; }
-.pupitre.fait { border-top-color: var(--vert); }
-.pupitre.fait .lampe { background: var(--vert); box-shadow: 0 0 10px rgba(102,187,106,0.8); }
-.pupitre.fait .num { color: var(--vert); }
-.pupitre.aujourdhui {
-    border-top-color: var(--ambre);
-    border-color: rgba(255,179,0,0.5);
-    background: linear-gradient(180deg, #1d1a12 0%, #12110d 100%);
-}
-.pupitre.aujourdhui .lampe {
-    background: var(--ambre);
-    box-shadow: 0 0 14px rgba(255,179,0,0.95);
-    animation: lampe 2.2s ease-in-out infinite;
-}
-.pupitre.aujourdhui .num { color: var(--ambre); }
-.pupitre.manque { border-top-color: var(--rouge); opacity: 0.75; }
-.pupitre.manque .lampe { background: var(--rouge); box-shadow: 0 0 8px rgba(229,115,115,0.6); }
-.pupitre.manque .num { color: var(--rouge); }
-@keyframes lampe {
-    0%, 100% { box-shadow: 0 0 8px rgba(255,179,0,0.6); }
-    50% { box-shadow: 0 0 20px rgba(255,179,0,1); }
-}
-.legende {
-    display: flex;
+    gap: 16px;
+    margin-bottom: 6px;
     flex-wrap: wrap;
-    gap: 14px;
-    justify-content: center;
-    margin: 10px 0 4px 0;
-    font-size: 0.78rem;
-    color: var(--doux);
 }
-.legende .pt { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+.dossier-num .num {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    color: var(--doux);
+    text-transform: uppercase;
+}
+.dossier-num .num b { color: var(--laiton); }
+.codebarres {
+    height: 30px;
+    width: 130px;
+    background: repeating-linear-gradient(90deg,
+        #cfcdc7 0 2px, transparent 2px 5px,
+        #cfcdc7 5px 6px, transparent 6px 9px,
+        #cfcdc7 9px 12px, transparent 12px 14px,
+        #cfcdc7 14px 15px, transparent 15px 19px);
+    opacity: 0.75;
+}
 
-/* ===== DOCUMENT (mise en situation) ===== */
-.document {
-    background:
-        linear-gradient(180deg, rgba(255,255,255,0.025) 0%, transparent 12%),
-        #151518;
+/* ===== PIÈCES AU DOSSIER ===== */
+.piece {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: linear-gradient(180deg, #161619 0%, #111114 100%);
+    border: 1px solid var(--bordure);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.piece .info .pnum {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 2px;
+    color: #fff;
+}
+.piece .info .pdate { font-size: 0.8rem; color: var(--doux); margin-left: 8px; }
+.piece.aujourdhui {
+    border-color: rgba(255,179,0,0.55);
+    border-left: 4px solid var(--ambre);
+    background: linear-gradient(180deg, #1c1a13 0%, #131209 100%);
+}
+.tampon {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.92rem;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border: 2px solid;
+    border-radius: 4px;
+    transform: rotate(-7deg);
+    white-space: nowrap;
+    opacity: 0.94;
+}
+.tampon.vert { color: var(--vert); border-color: var(--vert); }
+.tampon.rouge { color: var(--rouge); border-color: var(--rouge); }
+.tampon.ambre { color: var(--ambre); border-color: var(--ambre); }
+.tampon.gris { color: #5c5c60; border-color: #3d3d44; transform: rotate(0deg); }
+
+/* ===== FORMULAIRE (mise en situation) ===== */
+.formulaire {
+    background: #141417;
     border: 1px solid var(--bordure);
     border-radius: 8px;
-    padding: 24px 26px;
     margin: 18px 0 26px 0;
-    position: relative;
+    overflow: hidden;
 }
-.document::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
-    background: var(--laiton);
-    border-radius: 8px 0 0 8px;
+.formulaire .form-head {
+    background: #1b1b1f;
+    border-bottom: 1px solid var(--bordure);
+    padding: 12px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
 }
-.document .doc-titre {
+.formulaire .form-head .fh-titre {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1rem;
     letter-spacing: 3px;
     color: var(--laiton);
-    margin-bottom: 12px;
 }
-.document .doc-texte {
-    font-size: 1.04rem;
-    line-height: 1.75;
-    color: var(--texte);
-}
-.document .doc-texte b, .document .doc-texte strong { color: #fff; }
+.formulaire .form-head .fh-num { font-size: 0.78rem; color: var(--doux); letter-spacing: 1px; }
+.formulaire .form-body { padding: 22px 24px; font-size: 1.04rem; line-height: 1.75; }
+.formulaire .form-body b, .formulaire .form-body strong { color: #fff; }
 
 /* ===== QUESTIONS ===== */
 .q-titre {

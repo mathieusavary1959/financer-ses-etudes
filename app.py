@@ -32,12 +32,43 @@ st.set_page_config(page_title="Financer ses études", layout="centered")
 with open(os.path.join(BASE_DIR, "style.css"), encoding="utf-8") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+import streamlit.components.v1 as components
+
+def afficher_minuteur(secondes):
+    components.html(f"""
+    <div id="min" style="display:inline-block;font-family:'Bebas Neue',sans-serif;
+        font-size:1.9rem;letter-spacing:4px;color:#fff;background:#17171b;
+        border:1px solid #3d3d44;border-radius:8px;padding:8px 24px;">
+        <span style="display:block;font-family:'Work Sans',sans-serif;font-size:0.68rem;
+        letter-spacing:3px;color:#9a978f;margin-bottom:2px;">TEMPS ALLOUÉ</span>
+        <span id="chrono">--:--</span>
+    </div>
+    <script>
+    var fin = Date.now() + {secondes} * 1000;
+    function tick() {{
+        var r = Math.max(0, fin - Date.now());
+        var m = Math.floor(r / 60000);
+        var s = Math.floor((r % 60000) / 1000);
+        document.getElementById('chrono').textContent =
+            m + ':' + String(s).padStart(2, '0');
+        if (r <= 120000) {{
+            var el = document.getElementById('min');
+            el.style.color = '#E57373';
+            el.style.borderColor = '#E57373';
+        }}
+        if (r > 0) setTimeout(tick, 1000);
+    }}
+    tick();
+    </script>
+    """, height=105)
+
 def vault_header():
-    st.markdown('<div class="sceau">15</div>', unsafe_allow_html=True)
-    st.markdown('<div class="salle-surtitre">Évaluation quotidienne</div>', unsafe_allow_html=True)
-    st.markdown('<div class="salle-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="salle-filet"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="salle-sous">15 jours · 150 points · un seul essai par jour</div>', unsafe_allow_html=True)
+    num = st.session_state.get("user") or "—"
+    st.markdown('<div class="dossier-bandeau">Aide financière aux études</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dossier-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="dossier-filet"></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="dossier-num"><span class="num">Dossier n° <b>{num}</b></span>'
+                f'<span class="codebarres"></span></div>', unsafe_allow_html=True)
 
 # ---------------- BASE DE DONNÉES ----------------
 conn = st.connection("postgres", type="sql")
@@ -217,9 +248,9 @@ if est_prof:
             st.session_state.user = None
             st.rerun()
         st.stop()
-    st.markdown('<div class="salle-surtitre">Enseignant</div>', unsafe_allow_html=True)
-    st.markdown('<div class="salle-titre" style="font-size:2.3rem">SUPERVISION</div>', unsafe_allow_html=True)
-    st.markdown('<div class="salle-filet"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="dossier-bandeau">Enseignant</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dossier-titre" style="font-size:2.3rem">SUPERVISION</div>', unsafe_allow_html=True)
+    st.markdown('<div class="dossier-filet"></div>', unsafe_allow_html=True)
     tab_suivi, tab_comptes = st.tabs(["Suivi", "Comptes"])
     eleves = q("SELECT username, groupe FROM fq_users ORDER BY groupe, username")
     with tab_comptes:
@@ -366,16 +397,15 @@ def afficher_activite(i):
         histoire = act["histoire"]
     st.subheader(f"Évaluation {i} : {act['titre']}")
     st.caption(f"À compléter aujourd'hui · {DUREE_MIN} minutes · un seul envoi définitif")
-    st.markdown(f'<div class="document"><div class="doc-titre">Mise en situation</div>'
-                f'<div class="doc-texte">{histoire}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="formulaire"><div class="form-head">'
+                f'<span class="fh-titre">Mise en situation</span>'
+                f'<span class="fh-num">Formulaire E-{i:02d}</span></div>'
+                f'<div class="form-body">{histoire}</div></div>', unsafe_allow_html=True)
     if "debut" not in st.session_state or st.session_state.get("jour_minuteur") != i:
         st.session_state.debut = time.time()
         st.session_state.jour_minuteur = i
     reste = DUREE_MIN * 60 - (time.time() - st.session_state.debut)
-    t_txt = f"{int(reste // 60)}:{int(reste % 60):02d}" if reste > 0 else "0:00"
-    cls = "minuteur urgent" if reste <= 120 else "minuteur"
-    st.markdown(f'<div class="{cls}"><span class="lbl">Temps restant</span>{t_txt}</div>',
-                unsafe_allow_html=True)
+    afficher_minuteur(max(0, int(reste)))
     with st.form(f"form_{i}"):
         reponses = {}
         for nq, qu in enumerate(act["questions"], start=1):
@@ -436,22 +466,18 @@ def afficher_activite(i):
         st.rerun()
 
 def afficher_progression():
-    st.subheader("La salle d'examen")
-    cartes = []
+    st.subheader("Pièces au dossier")
+    tampons = {"fait": ("vert", "Complétée"), "manque": ("rouge", "Manquée"),
+               "aujourdhui": ("ambre", "En cours"), "verrouille": ("gris", "À venir")}
     for i in range(1, 16):
         s = statut_jour(i)
-        d = JOURS[i - 1].strftime("%d/%m")
-        cartes.append(
-            f'<div class="pupitre {s}"><div class="lampe"></div>'
-            f'<div class="num">{i:02d}</div><div class="dt">{d}</div></div>')
-    st.markdown('<div class="pupitres">' + "".join(cartes) + '</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="legende">'
-        '<span><span class="pt" style="background:#FFB300"></span>Aujourd\'hui</span>'
-        '<span><span class="pt" style="background:#66BB6A"></span>Complétée</span>'
-        '<span><span class="pt" style="background:#E57373"></span>Manquée</span>'
-        '<span><span class="pt" style="background:#3a3a40"></span>À venir</span>'
-        '</div>', unsafe_allow_html=True)
+        cls, lib = tampons[s]
+        d = JOURS[i - 1].strftime("%d/%m/%Y")
+        st.markdown(
+            f'<div class="piece {s}"><div class="info">'
+            f'<span class="pnum">Pièce {i:02d}</span><span class="pdate">{d}</span></div>'
+            f'<span class="tampon {cls}">{lib}</span></div>',
+            unsafe_allow_html=True)
     st.divider()
 
 if is_test:

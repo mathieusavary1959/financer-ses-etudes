@@ -23,10 +23,11 @@
         },
         {
           "id": "q3",
-          "type": "texte",
-          "enonce": "Si ton résultat est négatif, que dois-tu changer concrètement ? S'il est positif, est-ce suffisant pour vivre ? Justifie avec tes chiffres. (25 mots minimum)",
-          "min_mots": 25,
-          "points": 3
+          "type": "nombre",
+          "enonce": "De combien dois-tu augmenter tes revenus mensuels pour équilibrer ton budget ? (0 si tu es déjà en surplus, en $)",
+          "solution": "max(0, -(budget - (frais * duree + loyer * 12 * duree)) / (duree * 12))",
+          "points": 3,
+          "tolerance": 2
         }
       ],
       "titre": "Ton programme",
@@ -122,11 +123,12 @@
           "type": "nombre"
         },
         {
-          "enonce": "Si tu devais économiser 200 $ par mois, quelle dépense couperais-tu en premier et pourquoi ? (25 mots minimum)",
           "id": "q2",
-          "min_mots": 25,
+          "type": "nombre",
+          "enonce": "De quel pourcentage dois-tu réduire tes dépenses mensuelles totales pour économiser 200 $ ? (en %, 1 décimale)",
+          "solution": "200 / (loyer + nourriture + transport + autres) * 100",
           "points": 3,
-          "type": "texte"
+          "tolerance": 0.5
         }
       ],
       "titre": "Le budget mensuel",
@@ -217,11 +219,12 @@
           "type": "nombre"
         },
         {
-          "enonce": "En te basant sur TES chiffres ci-dessus, ton plan est-il réaliste ? Nomme le poste de dépense qui t'inquiète le plus. (40 mots minimum)",
           "id": "q2",
-          "min_mots": 40,
+          "type": "nombre",
+          "enonce": "Quel est l'écart entre ton coût annuel total et ton financement annuel total (prêt + travail) ? (en $, négatif si déficit)",
+          "solution": "(frais + loyer * 12 + autres * 12) - (pret_annuel + revenus_travail)",
           "points": 4,
-          "type": "texte"
+          "tolerance": 2
         }
       ],
       "titre": "Bilan de la semaine 1",
@@ -423,11 +426,12 @@
           "type": "choix"
         },
         {
-          "enonce": "Cette limite d'endettement change-t-elle quelque chose à ton plan ? Explique en utilisant tes chiffres. (40 mots minimum)",
           "id": "q2",
-          "min_mots": 40,
+          "type": "nombre",
+          "enonce": "De combien dépasses-tu la limite d'endettement, ou es-tu en dessous ? (en $, positif si tu dépasses, négatif sinon)",
+          "solution": "dette - limite",
           "points": 5,
-          "type": "texte"
+          "tolerance": 1
         }
       ],
       "titre": "Bilan de la semaine 2",
@@ -458,11 +462,12 @@
           "type": "nombre"
         },
         {
-          "enonce": "Quelle est ta première action concrète pour absorber ce coup ? (25 mots minimum)",
           "id": "q2",
-          "min_mots": 25,
+          "type": "nombre",
+          "enonce": "En combien de mois peux-tu rembourser cette réparation si tu y consacres 150 $ par mois ? (arrondi à l'unité)",
+          "solution": "round(reparation / 150)",
           "points": 4,
-          "type": "texte"
+          "tolerance": 1
         }
       ],
       "titre": "L'imprévu",
@@ -493,11 +498,12 @@
           "tolerance": 2
         },
         {
-          "enonce": "Laquelle choisis-tu ? Justifie avec les chiffres, en pensant aussi à la dette. (40 mots minimum)",
           "id": "q2",
-          "min_mots": 40,
+          "type": "nombre",
+          "enonce": "Si tu choisis l'option B, quel montant total rembourseras-tu (capital + intérêts à 6,5 % sur 5 ans) ? (en $)",
+          "solution": "manque * (1 + 0.065 * 5)",
           "points": 5,
-          "type": "texte"
+          "tolerance": 2
         }
       ],
       "titre": "Travailler plus ou emprunter plus ?",
@@ -562,11 +568,12 @@
           "tolerance": 2
         },
         {
-          "enonce": "Qu'est-ce que cette remise change concrètement pour tes premières années de travailleur ? (25 mots minimum)",
           "id": "q2",
-          "min_mots": 25,
+          "type": "nombre",
+          "enonce": "Après la remise, combien te reste-t-il à rembourser au total ? (en $)",
+          "solution": "(dette - 3000) * 0.85",
           "points": 4,
-          "type": "texte"
+          "tolerance": 2
         }
       ],
       "titre": "La remise de dette",
@@ -580,19 +587,60 @@
     },
     {
       "duree_min": 15,
-      "histoire": "Quinze jours de chiffres derrière toi. C'est le moment de trancher.",
+      "histoire": "Tu as terminé tes études. Voici ta situation finale : dette de {dette} $, taux de {taux} %, remboursement sur {annees} ans. Ton premier emploi te paie {salaire} $ par mois.",
       "jour": 15,
       "questions": [
         {
-          "enonce": "Défends ton plan de financement en 120 mots minimum : ton programme, son coût total, ta dette prévue à la fin, et la décision la plus difficile que tu as prise dans ce parcours.",
           "id": "q1",
-          "min_mots": 120,
-          "points": 10,
-          "type": "texte"
+          "type": "nombre",
+          "enonce": "Quel sera ton paiement mensuel ? (approximation : (capital + intérêts totaux) divisé par le nombre de mois, en $)",
+          "solution": "(dette + dette * taux / 100 * annees) / (annees * 12)",
+          "points": 4,
+          "tolerance": 2
+        },
+        {
+          "id": "q2",
+          "type": "nombre",
+          "enonce": "Quel pourcentage de ton salaire mensuel ce paiement représente-t-il ? (en %, 1 décimale)",
+          "solution": "((dette + dette * taux / 100 * annees) / (annees * 12)) / salaire * 100",
+          "points": 3,
+          "tolerance": 0.5
+        },
+        {
+          "id": "q3",
+          "type": "choix",
+          "enonce": "Les experts recommandent de ne pas consacrer plus de 15 % de son revenu au remboursement des dettes. Ta situation est-elle saine ?",
+          "options": [
+            "Oui, sous les 15 %",
+            "Non, au-dessus des 15 %"
+          ],
+          "solution": "0 if ((dette + dette * taux / 100 * annees) / (annees * 12)) / salaire * 100 <= 15 else 1",
+          "points": 3
         }
       ],
       "titre": "Décision finale",
-      "variables": {}
+      "variables": {
+        "dette": {
+          "type": "int",
+          "min": 15000,
+          "max": 30000
+        },
+        "taux": {
+          "type": "float",
+          "min": 6.0,
+          "max": 7.5
+        },
+        "annees": {
+          "type": "int",
+          "min": 5,
+          "max": 10
+        },
+        "salaire": {
+          "type": "int",
+          "min": 2800,
+          "max": 4200
+        }
+      }
     }
   ],
   "titre": "Financer ses études : 15 jours, 15 situations"

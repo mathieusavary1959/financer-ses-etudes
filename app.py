@@ -80,6 +80,10 @@ def exec_sql(sql, **p):
 # ---------------- PROFIL ALÉATOIRE ----------------
 SEL = "financement-2026"
 
+# fonctions sûres autorisées dans les formules de correction
+EVAL_NS = {"__builtins__": {}, "max": max, "min": min, "sum": sum,
+           "range": range, "round": round, "abs": abs}
+
 def generer_valeur(rng, spec):
     t = spec["type"]
     if t == "int":
@@ -126,13 +130,13 @@ def corriger(act, variables, reponses):
         ok = False
         if qu["type"] == "nombre" and rep not in (None, ""):
             try:
-                attendu = float(eval(qu["solution"], {"__builtins__": {}}, dict(variables)))
+                attendu = float(eval(qu["solution"], EVAL_NS, dict(variables)))
                 ok = abs(float(rep) - attendu) <= qu.get("tolerance", 1)
             except Exception:
                 ok = False
         elif qu["type"] == "choix" and rep not in (None, ""):
             try:
-                attendu = eval(str(qu["solution"]), {"__builtins__": {}}, dict(variables))
+                attendu = eval(str(qu["solution"]), EVAL_NS, dict(variables))
                 ok = int(rep) == int(attendu)
             except Exception:
                 ok = int(rep) == int(qu["solution"]) if str(qu["solution"]).isdigit() else False
@@ -196,7 +200,7 @@ if est_prof:
             st.rerun()
         st.stop()
     st.title("Supervision : Financer ses études")
-    tab_suivi, tab_corriger, tab_comptes = st.tabs(["Suivi", "Corriger les textes", "Comptes"])
+    tab_suivi, tab_comptes = st.tabs(["Suivi", "Comptes"])
     eleves = q("SELECT username, groupe FROM fq_users ORDER BY groupe, username")
     with tab_comptes:
         st.subheader("Créer les comptes d'un groupe")
@@ -267,33 +271,6 @@ if est_prof:
             ligne["Total /150"] = round(tot, 1)
             grid.append(ligne)
         st.dataframe(pd.DataFrame(grid), use_container_width=True, hide_index=True)
-    with tab_corriger:
-        st.subheader("Corriger les textes")
-        if len(eleves):
-            eu = st.selectbox("Élève", eleves["username"].tolist())
-            ej = st.selectbox("Jour", list(range(1, 16)))
-            r = q1("SELECT reponses, score_auto, notes_prof FROM fq_reponses WHERE username=:u AND jour=:j", u=eu, j=ej)
-            if not r:
-                st.info("Pas encore fait.")
-            else:
-                act = ACTIVITES[ej]
-                pr = q1("SELECT params FROM fq_profils WHERE username=:u AND jour=:j", u=eu, j=ej)
-                variables = json.loads(pr["params"])["vars"] if pr else {}
-                st.markdown(act["histoire"].format(**{k: v for k, v in variables.items() if k in act["histoire"]}))
-                rep = json.loads(r["reponses"])
-                notes = json.loads(r["notes_prof"] or "{}")
-                for qu in act["questions"]:
-                    if qu["type"] != "texte":
-                        continue
-                    st.markdown(f"**{qu['enonce']}**")
-                    st.info(rep.get(qu["id"], ""))
-                    nv = st.number_input(f"Note / {qu['points']}", 0.0, float(qu["points"]),
-                                         float(notes.get(qu["id"], 0)), step=0.5, key=f"n_{eu}_{ej}_{qu['id']}")
-                    notes[qu["id"]] = nv
-                if st.button("Enregistrer les notes"):
-                    exec_sql("UPDATE fq_reponses SET notes_prof=:n WHERE username=:u AND jour=:j",
-                             n=json.dumps(notes), u=eu, j=ej)
-                    st.success("Enregistré.")
     if st.button("Quitter"):
         st.session_state.user = None
         st.rerun()
@@ -341,14 +318,14 @@ def afficher_termine(i):
             if qu["type"] == "choix":
                 st.write(f"Ta réponse : {qu['options'][int(v)] if v is not None else '—'}")
                 try:
-                    att = qu["options"][int(float(eval(str(qu['solution']), {'__builtins__': {}}, dict(variables))))]
+                    att = qu["options"][int(float(eval(str(qu['solution']), EVAL_NS, dict(variables))))]
                     st.write(f"Bonne réponse : {att}")
                 except Exception:
                     pass
             elif qu["type"] == "nombre":
                 st.write(f"Ta réponse : {v if v is not None else '—'}")
                 try:
-                    att = round(float(eval(qu["solution"], {"__builtins__": {}}, dict(variables))), 2)
+                    att = round(float(eval(qu["solution"], EVAL_NS, dict(variables))), 2)
                     st.write(f"Bonne réponse : {att}")
                 except Exception:
                     pass
@@ -413,13 +390,13 @@ def afficher_activite(i):
                 st.write(f"✓ {qu['id']} : bonne réponse ({d_['pts']} pts)")
             else:
                 try:
-                    att = eval(qu["solution"], {"__builtins__": {}}, dict(variables))
+                    att = eval(qu["solution"], EVAL_NS, dict(variables))
                     if qu["type"] == "choix":
                         att = qu["options"][int(float(att))]
                     st.write(f"✗ {qu['id']} : raté (bonne réponse : {att})")
                 except Exception:
                     st.write(f"✗ {qu['id']} : raté")
-        st.write(f"**Score automatique : {score_auto:.1f} / 10** (les textes seront corrigés par ton prof)")
+        st.write(f"**Score : {score_auto:.1f} / 10**")
         if "debut" in st.session_state:
             del st.session_state["debut"]
         st.rerun()

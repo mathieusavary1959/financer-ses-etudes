@@ -306,6 +306,8 @@ jour_debloque = 0
 for i, d in enumerate(JOURS, start=1):
     if d <= aujourdhui:
         jour_debloque = i
+if st.session_state.get("groupe") == "TEST":
+    jour_debloque = 15  # compte test : tout débloqué
 
 onglets = st.tabs([f"Jour {i}" for i in range(1, 16)])
 for i in range(1, 16):

@@ -1,28 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-    --laiton: #C9A227;
-    --laiton-clair: #E8C547;
+    --cash: #00E676;
+    --cash-fonce: #00C853;
+    --rouge: #FF5252;
     --ambre: #FFB300;
-    --vert: #66BB6A;
-    --rouge: #E57373;
-    --fond: #0b0b0d;
-    --carte: #141417;
-    --bordure: #2c2c31;
-    --texte: #e9e7e2;
-    --doux: #9a978f;
+    --fond: #08080a;
+    --carte: #121214;
+    --bordure: #26262b;
+    --texte: #f2f2f0;
+    --doux: #8e8e93;
 }
 
-/* ===== FOND : salle la nuit ===== */
+/* ===== NE PAS CASSER LES ICÔNES MATERIAL DE STREAMLIT ===== */
+.stApp [class*="material-symbols"],
+.stApp [class*="material-icons"],
+.stApp [data-testid="stExpander"] [class*="material"] {
+    font-family: 'Material Symbols Rounded', 'Material Icons' !important;
+}
+
+/* ===== FOND CINÉMA ===== */
 .stApp {
     background:
-        radial-gradient(ellipse 90% 32% at 50% -6%, rgba(201,162,39,0.10) 0%, transparent 65%),
-        radial-gradient(ellipse 60% 25% at 50% 108%, rgba(201,162,39,0.05) 0%, transparent 60%),
-        #0b0b0d;
+        radial-gradient(ellipse 80% 28% at 50% -4%, rgba(0,230,118,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 22% at 50% 106%, rgba(0,230,118,0.05) 0%, transparent 60%),
+        #08080a;
 }
 
-/* ===== TYPO DE BASE ===== */
-.stApp p, .stApp div, .stApp span, .stApp label {
+/* ===== TYPO ===== */
+.stApp p, .stApp div, .stApp label {
     font-family: 'Work Sans', sans-serif;
     color: var(--texte);
 }
@@ -32,142 +38,149 @@
     letter-spacing: 3px;
     font-weight: 400 !important;
 }
+/* Les spans héritent, sauf les icônes (règle ci-dessus) */
+.stApp span:not([class*="material"]) {
+    font-family: 'Work Sans', sans-serif;
+}
 
-/* ===== EN-TÊTE DOSSIER ===== */
-.dossier-bandeau {
+/* ===== EN-TÊTE ===== */
+.cash-surtitre {
     text-align: center;
-    color: var(--doux);
-    font-size: 0.75rem;
+    color: var(--cash);
+    font-size: 0.8rem;
+    font-weight: 700;
     letter-spacing: 6px;
     text-transform: uppercase;
     margin-bottom: 8px;
 }
-.dossier-titre {
+.cash-titre {
     font-family: 'Bebas Neue', sans-serif;
     text-align: center;
-    font-size: 3rem;
-    letter-spacing: 4px;
+    font-size: 3.4rem;
+    letter-spacing: 5px;
     color: #fff;
-    line-height: 1.05;
+    line-height: 1;
     margin: 0;
-    padding: 0 8px;
+    padding: 0 6px;
+    text-shadow: 0 0 40px rgba(0,230,118,0.25);
 }
-.dossier-titre .accent { color: var(--laiton); }
-.dossier-filet {
-    width: 120px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--laiton), transparent);
-    margin: 14px auto;
+.cash-titre .accent { color: var(--cash); }
+.cash-filet {
+    width: 140px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--cash), transparent);
+    margin: 16px auto;
+    box-shadow: 0 0 12px rgba(0,230,118,0.5);
 }
-.dossier-num {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
-}
-.dossier-num .num {
-    font-size: 0.85rem;
-    letter-spacing: 2px;
+.cash-sous {
+    text-align: center;
     color: var(--doux);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
     text-transform: uppercase;
 }
-.dossier-num .num b { color: var(--laiton); }
-.codebarres {
-    height: 30px;
-    width: 130px;
-    background: repeating-linear-gradient(90deg,
-        #cfcdc7 0 2px, transparent 2px 5px,
-        #cfcdc7 5px 6px, transparent 6px 9px,
-        #cfcdc7 9px 12px, transparent 12px 14px,
-        #cfcdc7 14px 15px, transparent 15px 19px);
-    opacity: 0.75;
-}
 
-/* ===== PIÈCES AU DOSSIER ===== */
-.piece {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* ===== CARTES JOURS ===== */
+.jours-grille {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
-    background: linear-gradient(180deg, #161619 0%, #111114 100%);
+    margin: 20px 0;
+}
+@media (max-width: 640px) {
+    .jours-grille { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+}
+.jour-carte {
+    background: linear-gradient(165deg, #17171a 0%, #0e0e11 100%);
     border: 1px solid var(--bordure);
-    border-radius: 6px;
-    padding: 14px 18px;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-}
-.piece .info .pnum {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.15rem;
-    letter-spacing: 2px;
-    color: #fff;
-}
-.piece .info .pdate { font-size: 0.8rem; color: var(--doux); margin-left: 8px; }
-.piece.aujourdhui {
-    border-color: rgba(255,179,0,0.55);
-    border-left: 4px solid var(--ambre);
-    background: linear-gradient(180deg, #1c1a13 0%, #131209 100%);
-}
-.tampon {
-    display: inline-block;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 0.92rem;
-    letter-spacing: 2px;
-    padding: 4px 12px;
-    border: 2px solid;
-    border-radius: 4px;
-    transform: rotate(-7deg);
-    white-space: nowrap;
-    opacity: 0.94;
-}
-.tampon.vert { color: var(--vert); border-color: var(--vert); }
-.tampon.rouge { color: var(--rouge); border-color: var(--rouge); }
-.tampon.ambre { color: var(--ambre); border-color: var(--ambre); }
-.tampon.gris { color: #5c5c60; border-color: #3d3d44; transform: rotate(0deg); }
-
-/* ===== FORMULAIRE (mise en situation) ===== */
-.formulaire {
-    background: #141417;
-    border: 1px solid var(--bordure);
-    border-radius: 8px;
-    margin: 18px 0 26px 0;
+    border-radius: 12px;
+    padding: 16px 10px 14px 10px;
+    text-align: center;
+    position: relative;
     overflow: hidden;
+    transition: transform 0.15s;
 }
-.formulaire .form-head {
-    background: #1b1b1f;
-    border-bottom: 1px solid var(--bordure);
-    padding: 12px 22px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
+.jour-carte::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: #333;
 }
-.formulaire .form-head .fh-titre {
+.jour-carte .jnum {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
-    letter-spacing: 3px;
-    color: var(--laiton);
+    font-size: 2.1rem;
+    color: #fff;
+    line-height: 1;
 }
-.formulaire .form-head .fh-num { font-size: 0.78rem; color: var(--doux); letter-spacing: 1px; }
-.formulaire .form-body { padding: 22px 24px; font-size: 1.04rem; line-height: 1.75; }
-.formulaire .form-body b, .formulaire .form-body strong { color: #fff; }
+.jour-carte .jdate { font-size: 0.72rem; color: var(--doux); margin-top: 4px; }
+.jour-carte .jstat {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+.jour-carte.fait::before { background: var(--cash); }
+.jour-carte.fait .jstat { color: var(--cash); }
+.jour-carte.fait { box-shadow: 0 0 18px rgba(0,230,118,0.12); }
+.jour-carte.aujourdhui {
+    border-color: rgba(0,230,118,0.6);
+    box-shadow: 0 0 24px rgba(0,230,118,0.28);
+    animation: glow-cash 2.4s ease-in-out infinite;
+}
+.jour-carte.aujourdhui::before { background: var(--cash); }
+.jour-carte.aujourdhui .jstat { color: var(--cash); }
+.jour-carte.manque::before { background: var(--rouge); }
+.jour-carte.manque .jstat { color: var(--rouge); }
+.jour-carte.manque { opacity: 0.7; }
+.jour-carte.verrouille .jnum { color: #3a3a40; }
+.jour-carte.verrouille .jstat { color: #4a4a50; }
+@keyframes glow-cash {
+    0%, 100% { box-shadow: 0 0 14px rgba(0,230,118,0.18); }
+    50% { box-shadow: 0 0 30px rgba(0,230,118,0.4); }
+}
+
+/* ===== MISE EN SITUATION ===== */
+.situation {
+    background: linear-gradient(170deg, #151517 0%, #0f0f12 100%);
+    border: 1px solid var(--bordure);
+    border-radius: 12px;
+    padding: 24px 26px;
+    margin: 20px 0 26px 0;
+    border-top: 3px solid var(--cash);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.situation .sit-titre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    color: var(--cash);
+    margin-bottom: 14px;
+}
+.situation .sit-texte { font-size: 1.05rem; line-height: 1.75; color: var(--texte); }
+.situation .sit-texte b, .situation .sit-texte strong { color: #fff; }
 
 /* ===== QUESTIONS ===== */
-.q-titre {
+.q-bloc {
+    background: #101012;
+    border: 1px solid var(--bordure);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 14px 0;
+}
+.q-head {
     display: flex;
     align-items: baseline;
     gap: 10px;
-    margin: 22px 0 6px 0;
+    margin-bottom: 8px;
     flex-wrap: wrap;
 }
 .q-num {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
+    font-size: 1.05rem;
     letter-spacing: 2px;
-    color: var(--laiton);
+    color: var(--cash);
     white-space: nowrap;
 }
 .q-pts {
@@ -176,58 +189,58 @@
     letter-spacing: 1px;
     white-space: nowrap;
 }
-.q-enonce { font-weight: 600; font-size: 1.02rem; margin: 4px 0 10px 0; color: #fff; }
+.q-enonce { font-weight: 600; font-size: 1.03rem; color: #fff; margin-bottom: 12px; }
 
-/* ===== BOUTONS (sélecteurs renforcés) ===== */
+/* ===== BOUTONS ===== */
 .stButton > button,
-[data-testid="stFormSubmitButton"] > button,
-div[data-testid="stForm"] button {
-    background: var(--laiton) !important;
-    background-color: var(--laiton) !important;
-    color: #141414 !important;
+[data-testid="stFormSubmitButton"] > button {
+    background: var(--cash) !important;
+    background-color: var(--cash) !important;
+    color: #06130c !important;
     font-family: 'Work Sans', sans-serif !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
-    letter-spacing: 1.5px !important;
+    font-weight: 800 !important;
+    font-size: 1.02rem !important;
+    letter-spacing: 2px !important;
     text-transform: uppercase;
     border: none !important;
-    border-radius: 6px !important;
-    padding: 13px 24px !important;
-    box-shadow: 0 3px 14px rgba(201,162,39,0.30) !important;
+    border-radius: 10px !important;
+    padding: 14px 26px !important;
+    box-shadow: 0 4px 22px rgba(0,230,118,0.35) !important;
 }
 .stButton > button:hover,
 [data-testid="stFormSubmitButton"] > button:hover {
-    background: var(--laiton-clair) !important;
-    background-color: var(--laiton-clair) !important;
-    color: #141414 !important;
+    background: #33eb8a !important;
+    background-color: #33eb8a !important;
+    color: #06130c !important;
+    box-shadow: 0 6px 28px rgba(0,230,118,0.5) !important;
 }
 .stButton > button p, .stButton > button span,
 [data-testid="stFormSubmitButton"] > button p,
 [data-testid="stFormSubmitButton"] > button span {
-    color: #141414 !important;
+    color: #06130c !important;
 }
 
 /* ===== CHAMPS ===== */
 .stNumberInput input, .stTextInput input, .stTextArea textarea {
-    background: #1b1b1f !important;
+    background: #1a1a1e !important;
     color: #fff !important;
-    border: 1px solid #3d3d44 !important;
-    border-radius: 6px !important;
+    border: 1px solid #38383f !important;
+    border-radius: 8px !important;
+    font-size: 1.05rem !important;
 }
 .stNumberInput input:focus, .stTextInput input:focus {
-    border-color: var(--laiton) !important;
-    box-shadow: 0 0 0 1px var(--laiton) !important;
+    border-color: var(--cash) !important;
+    box-shadow: 0 0 0 1px var(--cash) !important;
 }
 
 /* ===== RADIO ===== */
 .stRadio > div {
     background: var(--carte);
     border: 1px solid var(--bordure);
-    border-radius: 8px;
-    padding: 10px 16px;
+    border-radius: 10px;
+    padding: 12px 16px;
 }
-.stRadio label { font-size: 0.99rem !important; padding: 6px 0 !important; }
-.stRadio label span { color: var(--texte) !important; }
+.stRadio label { font-size: 1rem !important; padding: 6px 0 !important; }
 
 /* ===== ONGLETS ===== */
 .stTabs [data-baseweb="tab"] {
@@ -236,41 +249,17 @@ div[data-testid="stForm"] button {
     color: #777 !important;
 }
 .stTabs [aria-selected="true"] {
-    color: var(--laiton) !important;
-    border-bottom-color: var(--laiton) !important;
+    color: var(--cash) !important;
+    border-bottom-color: var(--cash) !important;
 }
-
-/* ===== MINUTEUR ===== */
-.minuteur {
-    display: inline-block;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.9rem;
-    letter-spacing: 4px;
-    color: #fff;
-    background: #17171b;
-    border: 1px solid #3d3d44;
-    border-radius: 8px;
-    padding: 8px 24px;
-    margin: 14px 0;
-}
-.minuteur .lbl {
-    display: block;
-    font-family: 'Work Sans', sans-serif;
-    font-size: 0.68rem;
-    letter-spacing: 3px;
-    color: var(--doux);
-    margin-bottom: 2px;
-}
-.minuteur.urgent { color: var(--rouge); border-color: var(--rouge); }
-.minuteur.urgent .lbl { color: var(--rouge); }
 
 /* ===== DIVERS ===== */
-.stSuccess, .stError, .stInfo { border-radius: 8px !important; }
+.stSuccess, .stError, .stInfo { border-radius: 10px !important; }
 [data-testid="stMetric"] {
     background: var(--carte);
     border: 1px solid var(--bordure);
-    border-left: 4px solid var(--laiton);
-    border-radius: 8px;
+    border-left: 4px solid var(--cash);
+    border-radius: 10px;
     padding: 14px 18px;
 }
 [data-testid="stMetricValue"] {
@@ -278,5 +267,5 @@ div[data-testid="stForm"] button {
     color: #fff !important;
 }
 .streamlit-expanderHeader { color: #fff !important; font-weight: 600 !important; }
-.stDataFrame { border: 1px solid var(--bordure); border-radius: 8px; }
-hr { border-color: #222 !important; }
+.stDataFrame { border: 1px solid var(--bordure); border-radius: 10px; }
+hr { border-color: #1e1e22 !important; }

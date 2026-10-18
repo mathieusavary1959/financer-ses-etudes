@@ -63,12 +63,10 @@ def afficher_minuteur(secondes):
     """, height=105)
 
 def vault_header():
-    num = st.session_state.get("user") or "—"
-    st.markdown('<div class="dossier-bandeau">Aide financière aux études</div>', unsafe_allow_html=True)
-    st.markdown('<div class="dossier-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
-    st.markdown('<div class="dossier-filet"></div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="dossier-num"><span class="num">Dossier n° <b>{num}</b></span>'
-                f'<span class="codebarres"></span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="cash-surtitre">15 jours · 150 points · sans retour</div>', unsafe_allow_html=True)
+    st.markdown('<div class="cash-titre">FINANCER <span class="accent">SES ÉTUDES</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="cash-filet"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="cash-sous">Une évaluation par jour · un seul essai</div>', unsafe_allow_html=True)
 
 # ---------------- BASE DE DONNÉES ----------------
 conn = st.connection("postgres", type="sql")
@@ -248,9 +246,9 @@ if est_prof:
             st.session_state.user = None
             st.rerun()
         st.stop()
-    st.markdown('<div class="dossier-bandeau">Enseignant</div>', unsafe_allow_html=True)
-    st.markdown('<div class="dossier-titre" style="font-size:2.3rem">SUPERVISION</div>', unsafe_allow_html=True)
-    st.markdown('<div class="dossier-filet"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="cash-surtitre">Enseignant</div>', unsafe_allow_html=True)
+    st.markdown('<div class="cash-titre" style="font-size:2.4rem">SUPERVISION</div>', unsafe_allow_html=True)
+    st.markdown('<div class="cash-filet"></div>', unsafe_allow_html=True)
     tab_suivi, tab_comptes = st.tabs(["Suivi", "Comptes"])
     eleves = q("SELECT username, groupe FROM fq_users ORDER BY groupe, username")
     with tab_comptes:
@@ -397,10 +395,8 @@ def afficher_activite(i):
         histoire = act["histoire"]
     st.subheader(f"Évaluation {i} : {act['titre']}")
     st.caption(f"À compléter aujourd'hui · {DUREE_MIN} minutes · un seul envoi définitif")
-    st.markdown(f'<div class="formulaire"><div class="form-head">'
-                f'<span class="fh-titre">Mise en situation</span>'
-                f'<span class="fh-num">Formulaire E-{i:02d}</span></div>'
-                f'<div class="form-body">{histoire}</div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="situation"><div class="sit-titre">Mise en situation</div>'
+                f'<div class="sit-texte">{histoire}</div></div>', unsafe_allow_html=True)
     if "debut" not in st.session_state or st.session_state.get("jour_minuteur") != i:
         st.session_state.debut = time.time()
         st.session_state.jour_minuteur = i
@@ -409,7 +405,8 @@ def afficher_activite(i):
     with st.form(f"form_{i}"):
         reponses = {}
         for nq, qu in enumerate(act["questions"], start=1):
-            st.markdown(f'<div class="q-titre"><span class="q-num">Question {nq}</span>'
+            st.markdown('<div class="q-bloc">', unsafe_allow_html=True)
+            st.markdown(f'<div class="q-head"><span class="q-num">Question {nq}</span>'
                         f'<span class="q-pts">· {qu["points"]} points</span></div>', unsafe_allow_html=True)
             st.markdown(f'<div class="q-enonce">{qu["enonce"]}</div>', unsafe_allow_html=True)
             if qu["type"] == "nombre":
@@ -423,6 +420,7 @@ def afficher_activite(i):
                                              format_func=lambda x, o=opts_fmt: o[x], key=f"{i}_{qu['id']}")
             else:
                 reponses[qu["id"]] = st.text_area("Ta réponse", key=f"{i}_{qu['id']}")
+            st.markdown('</div>', unsafe_allow_html=True)
         envoyer = st.form_submit_button("Soumettre mes réponses", use_container_width=True)
     if envoyer:
         if q1("SELECT submitted_at FROM fq_reponses WHERE username=:u AND jour=:j", u=user, j=i):
@@ -466,18 +464,16 @@ def afficher_activite(i):
         st.rerun()
 
 def afficher_progression():
-    st.subheader("Pièces au dossier")
-    tampons = {"fait": ("vert", "Complétée"), "manque": ("rouge", "Manquée"),
-               "aujourdhui": ("ambre", "En cours"), "verrouille": ("gris", "À venir")}
+    st.subheader("Mon parcours")
+    lib = {"fait": "Complété", "manque": "Manqué", "aujourdhui": "Aujourd'hui", "verrouille": "À venir"}
+    cartes = []
     for i in range(1, 16):
         s = statut_jour(i)
-        cls, lib = tampons[s]
-        d = JOURS[i - 1].strftime("%d/%m/%Y")
-        st.markdown(
-            f'<div class="piece {s}"><div class="info">'
-            f'<span class="pnum">Pièce {i:02d}</span><span class="pdate">{d}</span></div>'
-            f'<span class="tampon {cls}">{lib}</span></div>',
-            unsafe_allow_html=True)
+        d = JOURS[i - 1].strftime("%d/%m")
+        cartes.append(
+            f'<div class="jour-carte {s}"><div class="jnum">{i:02d}</div>'
+            f'<div class="jdate">{d}</div><div class="jstat">{lib[s]}</div></div>')
+    st.markdown('<div class="jours-grille">' + "".join(cartes) + '</div>', unsafe_allow_html=True)
     st.divider()
 
 if is_test:
